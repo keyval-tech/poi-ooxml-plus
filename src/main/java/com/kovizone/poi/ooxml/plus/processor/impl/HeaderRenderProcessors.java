@@ -15,7 +15,7 @@ public class HeaderRenderProcessors implements WorkbookProcessor {
 
 
     @Override
-    public void render(Object annotation, WorkbookCommand workbookCommand, Class<?> clazz, List<?> entityList, Field targetField) throws PoiOoxmlPlusException {
+    public Object render(Object annotation, WorkbookCommand workbookCommand, Class<?> clazz, List<?> entityList, Field targetField, Object value) throws PoiOoxmlPlusException {
         HeaderRender headerRender = (HeaderRender) annotation;
         String headerTitle = headerRender.headerTitle();
         if (!StringUtils.isEmpty(headerTitle)) {
@@ -79,6 +79,6 @@ public class HeaderRenderProcessors implements WorkbookProcessor {
                 row.setHeight(headerSubtitleHeight);
             }
         }
-
+        return value;
     }
 }

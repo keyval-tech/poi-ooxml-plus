@@ -14,7 +14,7 @@ import java.util.List;
 public class SheetConfigProcessors implements WorkbookProcessor {
 
     @Override
-    public void render(Object annotation, WorkbookCommand workbookCommand, Class<?> clazz, List<?> entityList, Field targetField) throws PoiOoxmlPlusException {
+    public Object render(Object annotation, WorkbookCommand workbookCommand, Class<?> clazz, List<?> entityList, Field targetField, Object value) throws PoiOoxmlPlusException {
         SheetConfig sheetConfig = (SheetConfig) annotation;
         String sheetName = sheetConfig.sheetName();
         workbookCommand.createSheet(sheetName);
@@ -22,5 +22,6 @@ public class SheetConfigProcessors implements WorkbookProcessor {
         if (defaultColumnWidth != 0) {
             workbookCommand.setDefaultColumnWidth(defaultColumnWidth);
         }
+        return value;
     }
 }

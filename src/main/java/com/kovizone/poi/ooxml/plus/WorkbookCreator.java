@@ -210,22 +210,22 @@ public class WorkbookCreator {
 
             Annotation[] clazzAnnotations = clazz.getDeclaredAnnotations();
             for (Annotation clazzAnnotation : clazzAnnotations) {
-                Class<? extends Annotation> anno = clazzAnnotation.annotationType();
-                if (!anno.isAnnotationPresent(Processor.class)) {
-                    continue;
-                }
-                Processor processorAnno = anno.getDeclaredAnnotation(Processor.class);
-                Object annoObject = clazz.getDeclaredAnnotation(clazzAnnotation.annotationType());
+                Class<? extends Annotation> annotation = clazzAnnotation.annotationType();
+                // 判断注解是否存在处理器
+                if (annotation.isAnnotationPresent(Processor.class)) {
+                    Processor processorAnnotation = annotation.getDeclaredAnnotation(Processor.class);
+                    Object annotationEntity = clazz.getDeclaredAnnotation(clazzAnnotation.annotationType());
 
-                Class<?> processor = processorAnno.value();
-                if (!WorkbookProcessor.class.isAssignableFrom(processor)) {
-                    continue;
-                }
-                try {
-                    WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
-                    workbookProcessor.render(annoObject, workbookCommand, clazz, entityList, null);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new PoiOoxmlPlusException(e);
+                    // 处理器必须实现WorkbookProcessor
+                    Class<?> processor = processorAnnotation.value();
+                    if (WorkbookProcessor.class.isAssignableFrom(processor)) {
+                        try {
+                            WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
+                            workbookProcessor.render(annotationEntity, workbookCommand, clazz, entityList, null, null);
+                        } catch (IllegalAccessException | InstantiationException e) {
+                            throw new PoiOoxmlPlusException("注解处理器实例化失败;".concat(e.getMessage()));
+                        }
+                    }
                 }
             }
 
@@ -251,6 +251,16 @@ public class WorkbookCreator {
                 workbookCommand.createRow(dateBodyRowStyle);
 
                 for (Field field : poiColumnFieldList) {
+                    Object value = null;
+                    try {
+                        value = field.get(entity);
+                    } catch (IllegalAccessException e) {
+                        throw new PoiOoxmlPlusException("读取值失败");
+                    }
+                    Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
+                    processor(fieldAnnotations, workbookCommand, clazz, entityList, field, value);
+
+
                     Cell cell = workbookCommand.createCell();
                     if (dateBodyCellStyle != null) {
                         cell.setCellStyle(dateBodyCellStyle);
@@ -261,6 +271,34 @@ public class WorkbookCreator {
             workbookCommand.lateRender();
             break;
         }
+    }
+
+    private void processor(Annotation[] annotations,
+                           WorkbookCommand workbookCommand,
+                           Class<?> clazz,
+                           List<?> entityList,
+                           Field targetField,
+                           Object value) throws PoiOoxmlPlusException {
+        for (Annotation annotation : annotations) {
+            Class<? extends Annotation> annotationClass = annotation.annotationType();
+            // 判断注解是否存在处理器
+            if (annotationClass.isAnnotationPresent(Processor.class)) {
+                Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
+                Object annotationEntity = clazz.getDeclaredAnnotation(annotation.annotationType());
+
+                // 处理器必须实现WorkbookProcessor
+                Class<?> processor = processorAnnotation.value();
+                if (WorkbookProcessor.class.isAssignableFrom(processor)) {
+                    try {
+                        WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
+                        workbookProcessor.render(annotationEntity, workbookCommand, clazz, entityList, targetField, value);
+                    } catch (IllegalAccessException | InstantiationException e) {
+                        throw new PoiOoxmlPlusException("注解处理器实例化失败;".concat(e.getMessage()));
+                    }
+                }
+            }
+        }
+
     }
 
     /**

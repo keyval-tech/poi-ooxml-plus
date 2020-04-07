@@ -21,7 +21,14 @@ public interface WorkbookProcessor {
      * @param clazz           类
      * @param entityList      渲染实体集合
      * @param targetField     注解目标属性（可能为空）
+     * @param value           当前值
      */
-    void render(Object annotation, WorkbookCommand workbookCommand, Class<?> clazz, List<?> entityList, Field targetField) throws PoiOoxmlPlusException;
+    Object render(Object annotation,
+                  WorkbookCommand workbookCommand,
+                  Class<?> clazz,
+                  List<?> entityList,
+                  Field targetField,
+                  Object value
+    ) throws PoiOoxmlPlusException;
 
 }
