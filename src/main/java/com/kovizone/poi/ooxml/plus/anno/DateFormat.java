@@ -1,5 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
+import com.kovizone.poi.ooxml.plus.processor.DateFormatProcessors;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,9 +13,10 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
+@Processor(DateFormatProcessors.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DateFormat {
 
-    String value() default "yyyy-MM-dd HH:mm:ss";
+    String value() default "";
 
 }

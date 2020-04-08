@@ -31,7 +31,7 @@ public class FieldUtils {
 
     public static List<String> getFieldNameList(String arg) {
         Matcher matcher = Pattern.compile(FIELD_NAME_PATTERN).matcher(arg);
-        List<String> fieldNames = new ArrayList<String>();
+        List<String> fieldNames = new ArrayList<>();
         while (matcher.find()) {
             fieldNames.add(matcher.group());
         }

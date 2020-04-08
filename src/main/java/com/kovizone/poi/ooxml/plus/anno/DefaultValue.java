@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
+
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DefaultValue {
 

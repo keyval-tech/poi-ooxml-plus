@@ -1,6 +1,6 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
-import com.kovizone.poi.ooxml.plus.processor.impl.HeaderRenderProcessors;
+import com.kovizone.poi.ooxml.plus.processor.HeaderRenderProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

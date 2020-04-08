@@ -15,11 +15,12 @@ import java.lang.annotation.Target;
 public @interface Substitute {
 
     /**
-     * 替补条件
+     * 替补条件<BR/>
+     * 使用#[FieldName]指定属性的值<BR/>
      *
      * @return 替补条件
      */
-    String[] condition() default {"IS NUll"};
+    String condition();
 
     /**
      * 替补值<BR/>

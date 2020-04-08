@@ -1,5 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
+import com.kovizone.poi.ooxml.plus.processor.ColumnConfigProcessors;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,6 +13,7 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
+@Processor(ColumnConfigProcessors.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ColumnConfig {
 
@@ -34,6 +37,6 @@ public @interface ColumnConfig {
      *
      * @return 列宽
      */
-    int width() default 0;
+    int width() default -1;
 
 }

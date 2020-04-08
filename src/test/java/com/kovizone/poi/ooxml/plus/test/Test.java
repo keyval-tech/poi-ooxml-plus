@@ -35,36 +35,26 @@ public class Test {
     @SheetConfig(sheetName = "测试")
     @HeaderRender(headerTitle = "这是标题", headerSubtitle = "日期：#{datetime} 作者：#{author}")
     static class TestEntity {
-        @Prefix("#[test2]")
-        @Suffix("后缀")
+
         @ColumnConfig(sort = 10, title = "测试1", width = 5000)
         String test;
 
         @ColumnConfig(sort = 20, title = "测试2")
         String test2;
 
-        @StringReplace(target = {"00", "01", "02"}, replacement = {"交易完成", "交易中", "交易失败"})
+        @StringReplace(target = {"00", "01", "02"}, replacement = {"零零", "零一", "零二#[test2]"})
         @ColumnConfig(sort = 30, title = "测试3")
         String test3;
 
-        @StringReplace(target = {"00", "01", "02"}, replacement = {"交易完成", "交易中", "交易失败"})
-        @Substitute(condition = "is empty", value = "#[test3]")
         @ColumnConfig(sort = 40, title = "测试4")
         String test4;
 
-        @NumberMapper(target = {1, 2, 3}, replacement = {"交易完成", "交易中", "交易失败"})
         @ColumnConfig(sort = 50, title = "测试5")
         Integer test5;
 
-        @Criteria("#[test4] is null")
-        @DateFormat("yyyy-MM-dd HH:mm:ss.SSS")
         @ColumnConfig(sort = 60, title = "测试6", width = 10000)
         Date test6;
 
-        /**
-         * PoiDefaultValue可以在该属性为空时指定一个默认值
-         */
-        @DefaultValue("默认值")
         @ColumnConfig(sort = 70, title = "测试7", width = 10000)
         String test7;
 

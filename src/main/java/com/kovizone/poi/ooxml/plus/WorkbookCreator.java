@@ -3,13 +3,10 @@ package com.kovizone.poi.ooxml.plus;
 import com.kovizone.poi.ooxml.plus.anno.ColumnConfig;
 import com.kovizone.poi.ooxml.plus.anno.HeaderRender;
 import com.kovizone.poi.ooxml.plus.anno.Processor;
-import com.kovizone.poi.ooxml.plus.anno.SheetConfig;
 import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
-import com.kovizone.poi.ooxml.plus.processor.ColumnValueProcessors;
 import com.kovizone.poi.ooxml.plus.processor.WorkbookProcessor;
-import com.kovizone.poi.ooxml.plus.style.WorkbookStyle;
-import com.kovizone.poi.ooxml.plus.style.impl.WorkbookDefaultStyle;
-import com.kovizone.poi.ooxml.plus.util.StringUtils;
+import com.kovizone.poi.ooxml.plus.style.WorkbookStyleManager;
+import com.kovizone.poi.ooxml.plus.style.WorkbookDefaultStyleManager;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -31,51 +28,32 @@ import java.util.*;
 @HeaderRender
 public class WorkbookCreator {
 
-    /**
-     * 工作表样式
-     */
-    private WorkbookStyle workbookStyle;
-    /**
-     * 表头标题样式
-     */
-    private CellStyle headerTitleCellStyle;
-    /**
-     * 表头标题行样式
-     */
-    private CellStyle headerTitleRowStyle;
-    /**
-     * 表头副标题样式
-     */
-    private CellStyle headerSubtitleCellStyle;
-    /**
-     * 表头副标题行样式
-     */
-    private CellStyle headerSubtitleRowStyle;
-    /**
-     * 数据标题样式
-     */
-    private CellStyle dateTitleCellStyle;
-    /**
-     * 数据标题行样式
-     */
-    private CellStyle dateTitleRowStyle;
-    /**
-     * 数据内容样式
-     */
-    private CellStyle dateBodyCellStyle;
-    /**
-     * 数据内容行样式
-     */
-    private CellStyle dateBodyRowStyle;
+    public static final String HEADER_TITLE_CELL_STYLE_NAME = "HEADER_TITLE_CELL_STYLE_NAME";
+    public static final String HEADER_TITLE_ROW_STYLE_NAME = "HEADER_TITLE_ROW_STYLE_NAME";
+
+    public static final String HEADER_SUBTITLE_CELL_STYLE_NAME = "HEADER_SUBTITLE_CELL_STYLE_NAME";
+    public static final String HEADER_SUBTITLE_ROW_STYLE_NAME = "HEADER_SUBTITLE_ROW_STYLE_NAME";
+
+    public static final String DATE_TITLE_CELL_STYLE_NAME = "DATE_TITLE_CELL_STYLE_NAME";
+    public static final String DATE_TITLE_ROW_STYLE_NAME = "DATE_TITLE_ROW_STYLE_NAME";
+
+    public static final String DATE_BODY_CELL_STYLE_NAME = "DATE_BODY_CELL_STYLE_NAME";
+    public static final String DATE_BODY_ROW_STYLE_NAME = "DATE_BODY_ROW_STYLE_NAME";
+
     /**
      * 工作表命令
      */
     private WorkbookCommand workbookCommand;
 
     /**
-     * Poi属性缓存
+     * 样式管理气
      */
-    private static final Map<Class<?>, List<Field>> poiColumnFieldListCache = new HashMap<>(16);
+    WorkbookStyleManager workbookStyleManager;
+
+    /**
+     * 样式Map
+     */
+    Map<String, CellStyle> styleMap;
 
     /**
      * 实体类构造器<BR/>
@@ -83,16 +61,16 @@ public class WorkbookCreator {
      */
     public WorkbookCreator() {
         super();
-        this.workbookStyle = new WorkbookDefaultStyle();
+        this.workbookStyleManager = new WorkbookDefaultStyleManager();
     }
 
     /**
      * 实体类构造器<BR/>
      * 注入自定义样式
      */
-    public WorkbookCreator(WorkbookStyle workbookStyle) {
+    public WorkbookCreator(WorkbookStyleManager workbookStyleManager) {
         super();
-        this.workbookStyle = workbookStyle;
+        this.workbookStyleManager = workbookStyleManager;
     }
 
     /**
@@ -190,7 +168,6 @@ public class WorkbookCreator {
             return;
         }
 
-
         Class<?> clazz = entityList.get(0).getClass();
 
         int maxLength;
@@ -201,45 +178,32 @@ public class WorkbookCreator {
         }
 
         // 生成内容
-        List<Field> poiColumnFieldList = poiColumnFieldList(clazz);
-        workbookCommand = new WorkbookCommand(workbook, poiColumnFieldList.size() - 1, textReplaceMap);
+        List<Field> columnFieldList = poiColumnFieldList(clazz);
+        workbookCommand = new WorkbookCommand(workbook, columnFieldList.size() - 1, textReplaceMap, workbookStyleManager);
+
+        // 数据遍历索引
         int dateIndex = 0;
 
         sheetCycle:
         while (true) {
+            workbookCommand.createSheet();
 
             Annotation[] clazzAnnotations = clazz.getDeclaredAnnotations();
             for (Annotation clazzAnnotation : clazzAnnotations) {
-                Class<? extends Annotation> annotation = clazzAnnotation.annotationType();
-                // 判断注解是否存在处理器
-                if (annotation.isAnnotationPresent(Processor.class)) {
-                    Processor processorAnnotation = annotation.getDeclaredAnnotation(Processor.class);
-                    Object annotationEntity = clazz.getDeclaredAnnotation(clazzAnnotation.annotationType());
-
-                    // 处理器必须实现WorkbookProcessor
-                    Class<?> processor = processorAnnotation.value();
-                    if (WorkbookProcessor.class.isAssignableFrom(processor)) {
-                        try {
-                            WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
-                            workbookProcessor.render(annotationEntity, workbookCommand, clazz, entityList, null, null);
-                        } catch (IllegalAccessException | InstantiationException e) {
-                            throw new PoiOoxmlPlusException("注解处理器实例化失败;".concat(e.getMessage()));
-                        }
-                    }
-                }
+                // 不新增Sheet
+                headerRender(clazzAnnotation, workbookCommand, clazz, entityList);
             }
-
             // 数据标题
-            workbookCommand.createRow(dateTitleRowStyle);
-            for (Field field : poiColumnFieldList) {
-                Cell cell = workbookCommand.createCell();
-                if (dateTitleCellStyle != null) {
-                    cell.setCellStyle(dateTitleCellStyle);
+            workbookCommand.createRow(DATE_TITLE_ROW_STYLE_NAME);
+            for (Field field : columnFieldList) {
+                Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
+                workbookCommand.createCell(DATE_TITLE_CELL_STYLE_NAME);
+                for (Annotation fieldAnnotation : fieldAnnotations) {
+                    titleRender(fieldAnnotation, workbookCommand, clazz, entityList, field);
                 }
-                renderDateTitle(cell, field);
             }
 
-            // 数据主体
+            // 数据集遍历
             for (; dateIndex < entityList.size(); dateIndex++) {
                 Object entity = entityList.get(dateIndex);
 
@@ -248,9 +212,9 @@ public class WorkbookCreator {
                     continue sheetCycle;
                 }
 
-                workbookCommand.createRow(dateBodyRowStyle);
-
-                for (Field field : poiColumnFieldList) {
+                workbookCommand.createRow(DATE_BODY_ROW_STYLE_NAME);
+                for (Field field : columnFieldList) {
+                    // 读取默认值
                     Object value = null;
                     try {
                         value = field.get(entity);
@@ -258,14 +222,13 @@ public class WorkbookCreator {
                         throw new PoiOoxmlPlusException("读取值失败");
                     }
                     Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
-                    processor(fieldAnnotations, workbookCommand, clazz, entityList, field, value);
-
-
-                    Cell cell = workbookCommand.createCell();
-                    if (dateBodyCellStyle != null) {
-                        cell.setCellStyle(dateBodyCellStyle);
+                    workbookCommand.createCell(DATE_BODY_CELL_STYLE_NAME);
+                    for (Annotation fieldAnnotation : fieldAnnotations) {
+                        value = bodyRender(fieldAnnotation, workbookCommand, clazz, entity, entityList, field, value);
+                        if (value != null) {
+                            workbookCommand.setCellValue(value);
+                        }
                     }
-                    ColumnValueProcessors.setCellValue(cell, entity, field);
                 }
             }
             workbookCommand.lateRender();
@@ -273,48 +236,114 @@ public class WorkbookCreator {
         }
     }
 
-    private void processor(Annotation[] annotations,
-                           WorkbookCommand workbookCommand,
-                           Class<?> clazz,
-                           List<?> entityList,
-                           Field targetField,
-                           Object value) throws PoiOoxmlPlusException {
-        for (Annotation annotation : annotations) {
-            Class<? extends Annotation> annotationClass = annotation.annotationType();
-            // 判断注解是否存在处理器
-            if (annotationClass.isAnnotationPresent(Processor.class)) {
-                Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
-                Object annotationEntity = clazz.getDeclaredAnnotation(annotation.annotationType());
+    /**
+     * 解析表头处理器
+     *
+     * @param annotation      注解
+     * @param workbookCommand 基础命令
+     * @param entityList      实体集
+     * @throws PoiOoxmlPlusException 异常
+     */
+    private void headerRender(Annotation annotation,
+                              WorkbookCommand workbookCommand,
+                              Class<?> clazz,
+                              List<?> entityList) throws PoiOoxmlPlusException {
 
-                // 处理器必须实现WorkbookProcessor
-                Class<?> processor = processorAnnotation.value();
-                if (WorkbookProcessor.class.isAssignableFrom(processor)) {
-                    try {
-                        WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
-                        workbookProcessor.render(annotationEntity, workbookCommand, clazz, entityList, targetField, value);
-                    } catch (IllegalAccessException | InstantiationException e) {
-                        throw new PoiOoxmlPlusException("注解处理器实例化失败;".concat(e.getMessage()));
-                    }
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        // 判断注解是否存在处理器
+        if (annotationClass.isAnnotationPresent(Processor.class)) {
+            Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
+            Object annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
+
+            // 处理器必须实现WorkbookProcessor
+            Class<?> processor = processorAnnotation.value();
+            if (WorkbookProcessor.class.isAssignableFrom(processor)) {
+                try {
+                    WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
+                    workbookProcessor.headerRender(annotationEntity, workbookCommand, entityList, clazz);
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new PoiOoxmlPlusException("注解处理器实例化失败;".concat(e.getMessage()));
                 }
             }
         }
-
     }
 
     /**
-     * 渲染数据标题
+     * 解析数据标题处理器
      *
-     * @param cell  列
-     * @param field 属性
+     * @param annotation      注解
+     * @param workbookCommand 基础命令
+     * @param entityList      实体集
+     * @param targetField     注解目标属性
+     * @throws PoiOoxmlPlusException 异常
      */
-    private void renderDateTitle(Cell cell, Field field) throws PoiOoxmlPlusException {
-        ColumnConfig columnConfig = field.getDeclaredAnnotation(ColumnConfig.class);
-        ColumnValueProcessors.setCellValue(cell, field, columnConfig.title());
-        int cellWidth = columnConfig.width();
-        if (cellWidth != 0) {
-            workbookCommand.setCurrentCellWidth(cellWidth);
+    private void titleRender(Annotation annotation,
+                             WorkbookCommand workbookCommand,
+                             Class<?> clazz,
+                             List<?> entityList,
+                             Field targetField) throws PoiOoxmlPlusException {
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        // 判断注解是否存在处理器
+        if (annotationClass.isAnnotationPresent(Processor.class)) {
+            Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
+            Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
+
+            // 处理器必须实现WorkbookProcessor
+            Class<?> processor = processorAnnotation.value();
+            if (WorkbookProcessor.class.isAssignableFrom(processor)) {
+                try {
+                    WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
+                    workbookProcessor.titleRender(annotationEntity, workbookCommand, entityList, clazz, targetField);
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new PoiOoxmlPlusException("注解处理器实例化失败;".concat(e.getMessage()));
+                }
+            }
         }
     }
+
+    /**
+     * 解析数据处理器
+     *
+     * @param annotation      注解
+     * @param workbookCommand 基础命令
+     * @param object          实体
+     * @param entityList      实体集
+     * @param targetField     注解目标属性
+     * @param value           注解目标属性值
+     * @return 注解处理器更新后的值
+     * @throws PoiOoxmlPlusException 异常
+     */
+    private Object bodyRender(Annotation annotation,
+                              WorkbookCommand workbookCommand,
+                              Class<?> clazz,
+                              Object object,
+                              List<?> entityList,
+                              Field targetField,
+                              Object value) throws PoiOoxmlPlusException {
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        // 判断注解是否存在处理器
+        if (annotationClass.isAnnotationPresent(Processor.class)) {
+            Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
+            Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
+
+            // 处理器必须实现WorkbookProcessor
+            Class<?> processor = processorAnnotation.value();
+            if (WorkbookProcessor.class.isAssignableFrom(processor)) {
+                try {
+                    WorkbookProcessor workbookProcessor = (WorkbookProcessor) processor.newInstance();
+                    value = workbookProcessor.bodyRender(annotationEntity, workbookCommand, object, entityList, clazz, targetField, value);
+                } catch (IllegalAccessException | InstantiationException e) {
+                    throw new PoiOoxmlPlusException("注解处理器实例化失败;".concat(e.getMessage()));
+                }
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Poi属性缓存
+     */
+    private static final Map<Class<?>, List<Field>> poiColumnFieldListCache = new HashMap<>(16);
 
     /**
      * 获取有@PoiColumn注解的属性集合<BR/>

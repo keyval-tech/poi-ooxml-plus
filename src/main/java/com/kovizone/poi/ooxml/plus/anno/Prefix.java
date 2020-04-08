@@ -1,5 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
+import com.kovizone.poi.ooxml.plus.processor.PrefixProcessors;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,6 +13,7 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
+@Processor(PrefixProcessors.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Prefix {
 
@@ -20,6 +23,6 @@ public @interface Prefix {
      *
      * @return 拼接前缀集
      */
-    String[] value();
+    String value();
 
 }

@@ -1,23 +1,42 @@
-package com.kovizone.poi.ooxml.plus.style.impl;
+package com.kovizone.poi.ooxml.plus.style;
 
+import com.kovizone.poi.ooxml.plus.WorkbookCreator;
 import com.kovizone.poi.ooxml.plus.WorkbookStyleCommand;
-import com.kovizone.poi.ooxml.plus.style.WorkbookStyle;
+import com.kovizone.poi.ooxml.plus.style.WorkbookStyleManager;
 import org.apache.poi.ss.usermodel.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 默认样式
  *
  * @author KoviChen
  */
-public class WorkbookDefaultStyle implements WorkbookStyle {
+public class WorkbookDefaultStyleManager implements WorkbookStyleManager {
 
     @Override
-    public CellStyle headerTitleRowStyle(WorkbookStyleCommand command) {
+    public Map<String, CellStyle> styleMap(WorkbookStyleCommand command) {
+        Map<String, CellStyle> styleMap = new HashMap<>();
+        styleMap.put(WorkbookCreator.HEADER_TITLE_CELL_STYLE_NAME, headerTitleCellStyle(command));
+        styleMap.put(WorkbookCreator.HEADER_TITLE_ROW_STYLE_NAME, headerTitleRowStyle(command));
+
+        styleMap.put(WorkbookCreator.HEADER_SUBTITLE_CELL_STYLE_NAME, headerSubtitleCellStyle(command));
+        styleMap.put(WorkbookCreator.HEADER_SUBTITLE_ROW_STYLE_NAME, headerSubtitleRowStyle(command));
+
+        styleMap.put(WorkbookCreator.DATE_TITLE_CELL_STYLE_NAME, dateTitleCellStyle(command));
+        styleMap.put(WorkbookCreator.DATE_TITLE_ROW_STYLE_NAME, dateTitleRowStyle(command));
+
+        styleMap.put(WorkbookCreator.DATE_BODY_CELL_STYLE_NAME, dateBodyCellStyle(command));
+        styleMap.put(WorkbookCreator.DATE_BODY_ROW_STYLE_NAME, dateBodyRowStyle(command));
+        return styleMap;
+    }
+
+    private CellStyle headerTitleRowStyle(WorkbookStyleCommand command) {
         return null;
     }
 
-    @Override
-    public CellStyle headerTitleCellStyle(WorkbookStyleCommand command) {
+    private CellStyle headerTitleCellStyle(WorkbookStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -36,13 +55,11 @@ public class WorkbookDefaultStyle implements WorkbookStyle {
         return cellStyle;
     }
 
-    @Override
-    public CellStyle headerSubtitleRowStyle(WorkbookStyleCommand command) {
+    private CellStyle headerSubtitleRowStyle(WorkbookStyleCommand command) {
         return null;
     }
 
-    @Override
-    public CellStyle headerSubtitleCellStyle(WorkbookStyleCommand command) {
+    private CellStyle headerSubtitleCellStyle(WorkbookStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
 
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -61,13 +78,11 @@ public class WorkbookDefaultStyle implements WorkbookStyle {
         return cellStyle;
     }
 
-    @Override
-    public CellStyle dateTitleRowStyle(WorkbookStyleCommand command) {
+    private CellStyle dateTitleRowStyle(WorkbookStyleCommand command) {
         return null;
     }
 
-    @Override
-    public CellStyle dateTitleCellStyle(WorkbookStyleCommand command) {
+    private CellStyle dateTitleCellStyle(WorkbookStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
 
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -80,13 +95,11 @@ public class WorkbookDefaultStyle implements WorkbookStyle {
         return cellStyle;
     }
 
-    @Override
-    public CellStyle dateBodyRowStyle(WorkbookStyleCommand command) {
+    private CellStyle dateBodyRowStyle(WorkbookStyleCommand command) {
         return null;
     }
 
-    @Override
-    public CellStyle dateBodyCellStyle(WorkbookStyleCommand command) {
+    private CellStyle dateBodyCellStyle(WorkbookStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.LEFT);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);

@@ -14,21 +14,60 @@ import java.util.List;
 public interface WorkbookProcessor {
 
     /**
-     * 渲染
+     * 表头渲染
      *
      * @param annotation      注解类实体
      * @param workbookCommand 基础命令
-     * @param clazz           类
      * @param entityList      渲染实体集合
-     * @param targetField     注解目标属性（可能为空）
-     * @param value           当前值
+     * @param clazz           实体类
+     * @throws PoiOoxmlPlusException 异常
      */
-    Object render(Object annotation,
-                  WorkbookCommand workbookCommand,
-                  Class<?> clazz,
-                  List<?> entityList,
-                  Field targetField,
-                  Object value
-    ) throws PoiOoxmlPlusException;
+    default void headerRender(Object annotation,
+                              WorkbookCommand workbookCommand,
+                              List<?> entityList,
+                              Class<?> clazz
+    ) throws PoiOoxmlPlusException {
+    }
+
+    /**
+     * 数据标题渲染
+     *
+     * @param annotation      注解类实体
+     * @param workbookCommand 基础命令
+     * @param entityList      渲染实体集合
+     * @param clazz           实体类
+     * @param targetField     注解目标属性
+     * @throws PoiOoxmlPlusException 异常
+     */
+    default void titleRender(Object annotation,
+                             WorkbookCommand workbookCommand,
+                             List<?> entityList,
+                             Class<?> clazz,
+                             Field targetField
+    ) throws PoiOoxmlPlusException {
+    }
+
+    /**
+     * 数据体渲染
+     *
+     * @param annotation       注解类实体
+     * @param workbookCommand  基础命令
+     * @param object           实体
+     * @param entityList       渲染实体集合
+     * @param clazz            实体类
+     * @param targetField      注解目标属性
+     * @param targetFieldValue 注解目标属性值
+     * @throws PoiOoxmlPlusException 异常
+     */
+    default Object bodyRender(Object annotation,
+                              WorkbookCommand workbookCommand,
+                              Object object,
+                              List<?> entityList,
+                              Class<?> clazz,
+                              Field targetField,
+                              Object targetFieldValue
+    ) throws PoiOoxmlPlusException {
+        return targetFieldValue;
+    }
 
 }

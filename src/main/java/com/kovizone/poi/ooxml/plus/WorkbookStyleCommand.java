@@ -4,6 +4,11 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
 
+/**
+ * 工作表样式命令
+ *
+ * @author KoviChen
+ */
 public class WorkbookStyleCommand {
     /**
      * 工作表
@@ -19,6 +24,11 @@ public class WorkbookStyleCommand {
         return workbook.createCellStyle();
     }
 
+    /**
+     * 创建字体样式
+     *
+     * @return 字体样式
+     */
     public Font createFont() {
         return workbook.createFont();
     }

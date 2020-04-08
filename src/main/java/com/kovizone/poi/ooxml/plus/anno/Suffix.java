@@ -1,5 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
+import com.kovizone.poi.ooxml.plus.processor.SuffixProcessors;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,6 +13,7 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
+@Processor(SuffixProcessors.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Suffix {
 
@@ -20,6 +23,6 @@ public @interface Suffix {
      *
      * @return 拼接后缀集
      */
-    String[] value();
+    String value();
 
 }

@@ -1,9 +1,13 @@
 package com.kovizone.poi.ooxml.plus;
 
+import com.kovizone.poi.ooxml.plus.style.WorkbookStyleManager;
+import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -13,7 +17,7 @@ import java.util.*;
  */
 public class WorkbookCommand extends WorkbookStyleCommand {
 
-    protected WorkbookCommand(Workbook workbook, int cellSize, Map<String, String> textReplaceMap) {
+    protected WorkbookCommand(Workbook workbook, int cellSize, Map<String, String> textReplaceMap, WorkbookStyleManager workbookStyleManager) {
         super();
         this.workbook = workbook;
         this.cellSize = cellSize;
@@ -22,17 +26,22 @@ public class WorkbookCommand extends WorkbookStyleCommand {
         this.nextCellIndex = 0;
         this.nextRowIndex = 0;
         this.lateRenderCellWidth = new HashMap<>();
+        this.styleMap = workbookStyleManager.styleMap(this);
     }
 
+    private Map<String, CellStyle> styleMap;
     /**
      * 工作簿
      */
     private Sheet sheet;
-
     /**
      * 行
      */
     private Row row;
+    /**
+     * 单元格
+     */
+    private Cell cell;
     /**
      * 默认最大宽度
      */
@@ -83,16 +92,28 @@ public class WorkbookCommand extends WorkbookStyleCommand {
 
     /**
      * 创建工作簿
+     */
+    public void createSheet() {
+        createSheet("Sheet#{sheetNum}");
+    }
+
+    /**
+     * 创建工作簿
      *
      * @param sheetName 工作簿名
      */
     public void createSheet(String sheetName) {
-        if (!sheetName.contains(WorkbookConstant.SHEET_NUM)) {
-            sheetName = sheetName + WorkbookConstant.SHEET_NUM;
+        Sheet sheet;
+        if (StringUtils.isEmpty(sheetName)) {
+            if (!sheetName.contains(WorkbookConstant.SHEET_NUM)) {
+                sheetName = sheetName + WorkbookConstant.SHEET_NUM;
+            }
+            sheet = workbook.createSheet(sheetName.replace(
+                    WorkbookConstant.SHEET_NUM,
+                    String.valueOf((sheetIndex) + 1)));
+        } else {
+            sheet = workbook.createSheet();
         }
-        Sheet sheet = workbook.createSheet(sheetName.replace(
-                WorkbookConstant.SHEET_NUM,
-                String.valueOf((sheetIndex) + 1)));
         this.sheet = sheet;
 
         // 重置列索引
@@ -105,6 +126,15 @@ public class WorkbookCommand extends WorkbookStyleCommand {
         }
         lateRenderFlag = false;
         sheetIndex++;
+    }
+
+    public void setSheetName(String sheetName) {
+        if (!sheetName.contains(WorkbookConstant.SHEET_NUM)) {
+            sheetName = sheetName + WorkbookConstant.SHEET_NUM;
+        }
+        workbook.setSheetName(currentSheetIndex(), sheetName.replace(
+                WorkbookConstant.SHEET_NUM,
+                String.valueOf(currentSheetIndex() + 1)));
     }
 
     protected Sheet getSheet() {
@@ -130,12 +160,31 @@ public class WorkbookCommand extends WorkbookStyleCommand {
      *
      * @return 行
      */
+    public Row createRow(String styleName) {
+        Row row = createRow();
+        CellStyle cellStyle = styleMap.get(styleName);
+        if (cellStyle != null) {
+            row.setRowStyle(cellStyle);
+        }
+        return row;
+    }
+
+    /**
+     * 创建行<BR/>
+     * 注入样式
+     *
+     * @return 行
+     */
     public Row createRow(CellStyle cellStyle) {
         Row row = createRow();
         if (cellStyle != null) {
             row.setRowStyle(cellStyle);
         }
         return row;
+    }
+
+    public Row getRow() {
+        return this.row;
     }
 
     /**
@@ -145,6 +194,22 @@ public class WorkbookCommand extends WorkbookStyleCommand {
      */
     public Cell createCell() {
         Cell cell = row.createCell(nextCellIndex++);
+        this.cell = cell;
+        return cell;
+    }
+
+    /**
+     * 创建单元格<BR/>
+     * 注入样式
+     *
+     * @return 单元格
+     */
+    public Cell createCell(String styleName) {
+        Cell cell = createCell();
+        CellStyle cellStyle = styleMap.get(styleName);
+        if (cellStyle != null) {
+            cell.setCellStyle(cellStyle);
+        }
         return cell;
     }
 
@@ -160,6 +225,10 @@ public class WorkbookCommand extends WorkbookStyleCommand {
             cell.setCellStyle(cellStyle);
         }
         return cell;
+    }
+
+    public Cell getCell() {
+        return this.cell;
     }
 
     /**
@@ -322,5 +391,59 @@ public class WorkbookCommand extends WorkbookStyleCommand {
 
     public int getCellSize() {
         return cellSize;
+    }
+
+    public void setCellValue(Object value) {
+        if (value instanceof String) {
+            cell.setCellValue((String) value);
+        }
+        if (value instanceof Boolean) {
+            cell.setCellValue((Boolean) value);
+        }
+        if (value instanceof LocalDateTime) {
+            cell.setCellValue((LocalDateTime) value);
+        }
+        if (value instanceof LocalDate) {
+            cell.setCellValue((LocalDate) value);
+        }
+        if (value instanceof Date) {
+            cell.setCellValue((Date) value);
+        }
+        if (value instanceof Calendar) {
+            cell.setCellValue((Calendar) value);
+        }
+        if (value instanceof Byte) {
+            cell.setCellValue((Byte) value);
+        }
+        if (value instanceof Short) {
+            cell.setCellValue((Short) value);
+        }
+        if (value instanceof Integer) {
+            cell.setCellValue((Integer) value);
+        }
+        if (value instanceof Long) {
+            cell.setCellValue((Long) value);
+        }
+        if (value instanceof Float) {
+            cell.setCellValue((Float) value);
+        }
+        if (value instanceof Double) {
+            cell.setCellValue((Double) value);
+        }
+        if (value instanceof RichTextString) {
+            cell.setCellValue((RichTextString) value);
+        }
+    }
+
+    public CellStyle getCellStyle(String styleName) {
+        return styleMap.get(styleName);
+    }
+
+    public void setCellStyle(String styleName) {
+        this.cell.setCellStyle(styleMap.get(styleName));
+    }
+
+    public void setCellStyle(CellStyle style) {
+        this.cell.setCellStyle(style);
     }
 }
