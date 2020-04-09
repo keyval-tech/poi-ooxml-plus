@@ -1,8 +1,7 @@
 package com.kovizone.poi.ooxml.plus.style;
 
-import com.kovizone.poi.ooxml.plus.WorkbookCreator;
-import com.kovizone.poi.ooxml.plus.WorkbookStyleCommand;
-import com.kovizone.poi.ooxml.plus.style.WorkbookStyleManager;
+import com.kovizone.poi.ooxml.plus.ExcelHelper;
+import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import org.apache.poi.ss.usermodel.*;
 
 import java.util.HashMap;
@@ -13,30 +12,30 @@ import java.util.Map;
  *
  * @author KoviChen
  */
-public class WorkbookDefaultStyleManager implements WorkbookStyleManager {
+public class ExcelDefaultStyleManager implements ExcelStyleManager {
 
     @Override
-    public Map<String, CellStyle> styleMap(WorkbookStyleCommand command) {
+    public Map<String, CellStyle> styleMap(ExcelStyleCommand command) {
         Map<String, CellStyle> styleMap = new HashMap<>();
-        styleMap.put(WorkbookCreator.HEADER_TITLE_CELL_STYLE_NAME, headerTitleCellStyle(command));
-        styleMap.put(WorkbookCreator.HEADER_TITLE_ROW_STYLE_NAME, headerTitleRowStyle(command));
+        styleMap.put(ExcelHelper.HEADER_TITLE_CELL_STYLE_NAME, headerTitleCellStyle(command));
+        styleMap.put(ExcelHelper.HEADER_TITLE_ROW_STYLE_NAME, headerTitleRowStyle(command));
 
-        styleMap.put(WorkbookCreator.HEADER_SUBTITLE_CELL_STYLE_NAME, headerSubtitleCellStyle(command));
-        styleMap.put(WorkbookCreator.HEADER_SUBTITLE_ROW_STYLE_NAME, headerSubtitleRowStyle(command));
+        styleMap.put(ExcelHelper.HEADER_SUBTITLE_CELL_STYLE_NAME, headerSubtitleCellStyle(command));
+        styleMap.put(ExcelHelper.HEADER_SUBTITLE_ROW_STYLE_NAME, headerSubtitleRowStyle(command));
 
-        styleMap.put(WorkbookCreator.DATE_TITLE_CELL_STYLE_NAME, dateTitleCellStyle(command));
-        styleMap.put(WorkbookCreator.DATE_TITLE_ROW_STYLE_NAME, dateTitleRowStyle(command));
+        styleMap.put(ExcelHelper.DATE_TITLE_CELL_STYLE_NAME, dateTitleCellStyle(command));
+        styleMap.put(ExcelHelper.DATE_TITLE_ROW_STYLE_NAME, dateTitleRowStyle(command));
 
-        styleMap.put(WorkbookCreator.DATE_BODY_CELL_STYLE_NAME, dateBodyCellStyle(command));
-        styleMap.put(WorkbookCreator.DATE_BODY_ROW_STYLE_NAME, dateBodyRowStyle(command));
+        styleMap.put(ExcelHelper.DATE_BODY_CELL_STYLE_NAME, dateBodyCellStyle(command));
+        styleMap.put(ExcelHelper.DATE_BODY_ROW_STYLE_NAME, dateBodyRowStyle(command));
         return styleMap;
     }
 
-    private CellStyle headerTitleRowStyle(WorkbookStyleCommand command) {
+    private CellStyle headerTitleRowStyle(ExcelStyleCommand command) {
         return null;
     }
 
-    private CellStyle headerTitleCellStyle(WorkbookStyleCommand command) {
+    private CellStyle headerTitleCellStyle(ExcelStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -55,11 +54,11 @@ public class WorkbookDefaultStyleManager implements WorkbookStyleManager {
         return cellStyle;
     }
 
-    private CellStyle headerSubtitleRowStyle(WorkbookStyleCommand command) {
+    private CellStyle headerSubtitleRowStyle(ExcelStyleCommand command) {
         return null;
     }
 
-    private CellStyle headerSubtitleCellStyle(WorkbookStyleCommand command) {
+    private CellStyle headerSubtitleCellStyle(ExcelStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
 
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -78,11 +77,11 @@ public class WorkbookDefaultStyleManager implements WorkbookStyleManager {
         return cellStyle;
     }
 
-    private CellStyle dateTitleRowStyle(WorkbookStyleCommand command) {
+    private CellStyle dateTitleRowStyle(ExcelStyleCommand command) {
         return null;
     }
 
-    private CellStyle dateTitleCellStyle(WorkbookStyleCommand command) {
+    private CellStyle dateTitleCellStyle(ExcelStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
 
         cellStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -95,11 +94,11 @@ public class WorkbookDefaultStyleManager implements WorkbookStyleManager {
         return cellStyle;
     }
 
-    private CellStyle dateBodyRowStyle(WorkbookStyleCommand command) {
+    private CellStyle dateBodyRowStyle(ExcelStyleCommand command) {
         return null;
     }
 
-    private CellStyle dateBodyCellStyle(WorkbookStyleCommand command) {
+    private CellStyle dateBodyCellStyle(ExcelStyleCommand command) {
         CellStyle cellStyle = command.createCellStyle();
         cellStyle.setAlignment(HorizontalAlignment.LEFT);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);

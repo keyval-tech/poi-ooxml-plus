@@ -1,6 +1,7 @@
-package com.kovizone.poi.ooxml.plus;
+package com.kovizone.poi.ooxml.plus.command;
 
-import com.kovizone.poi.ooxml.plus.style.WorkbookStyleManager;
+import com.kovizone.poi.ooxml.plus.ExcelHelper;
+import com.kovizone.poi.ooxml.plus.style.ExcelStyleManager;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -15,20 +16,28 @@ import java.util.*;
  *
  * @author KoviChen
  */
-public class WorkbookCommand extends WorkbookStyleCommand {
+public class ExcelCommand {
 
-    protected WorkbookCommand(Workbook workbook, int cellSize, Map<String, String> textReplaceMap, WorkbookStyleManager workbookStyleManager) {
+    public ExcelCommand(Workbook workbook, int cellSize, Map<String, Object> vars, ExcelStyleManager excelStyleManager) {
         super();
         this.workbook = workbook;
         this.cellSize = cellSize;
-        this.textReplaceMap = textReplaceMap;
+        this.vars = vars;
         this.sheetIndex = 0;
         this.nextCellIndex = 0;
         this.nextRowIndex = 0;
-        this.lateRenderCellWidth = new HashMap<>();
-        this.styleMap = workbookStyleManager.styleMap(this);
+        this.lateRenderCellWidth = new HashMap<>(16);
+        this.lateRenderRowHeight = new HashMap<>(16);
+        this.styleMap = excelStyleManager.styleMap(new ExcelStyleCommand(workbook));
     }
 
+    /**
+     * 工作表
+     */
+    protected Workbook workbook;
+    /**
+     * 样式管理
+     */
     private Map<String, CellStyle> styleMap;
     /**
      * 工作簿
@@ -61,7 +70,7 @@ public class WorkbookCommand extends WorkbookStyleCommand {
     /**
      * 表头文本替换
      */
-    private Map<String, String> textReplaceMap;
+    private Map<String, Object> vars;
 
     /**
      * 获取当前单元格索引
@@ -105,11 +114,11 @@ public class WorkbookCommand extends WorkbookStyleCommand {
     public void createSheet(String sheetName) {
         Sheet sheet;
         if (StringUtils.isEmpty(sheetName)) {
-            if (!sheetName.contains(WorkbookConstant.SHEET_NUM)) {
-                sheetName = sheetName + WorkbookConstant.SHEET_NUM;
+            if (!sheetName.contains(ExcelHelper.SHEET_NUM)) {
+                sheetName = sheetName + ExcelHelper.SHEET_NUM;
             }
             sheet = workbook.createSheet(sheetName.replace(
-                    WorkbookConstant.SHEET_NUM,
+                    ExcelHelper.SHEET_NUM,
                     String.valueOf((sheetIndex) + 1)));
         } else {
             sheet = workbook.createSheet();
@@ -129,11 +138,11 @@ public class WorkbookCommand extends WorkbookStyleCommand {
     }
 
     public void setSheetName(String sheetName) {
-        if (!sheetName.contains(WorkbookConstant.SHEET_NUM)) {
-            sheetName = sheetName + WorkbookConstant.SHEET_NUM;
+        if (!sheetName.contains(ExcelHelper.SHEET_NUM)) {
+            sheetName = sheetName + ExcelHelper.SHEET_NUM;
         }
         workbook.setSheetName(currentSheetIndex(), sheetName.replace(
-                WorkbookConstant.SHEET_NUM,
+                ExcelHelper.SHEET_NUM,
                 String.valueOf(currentSheetIndex() + 1)));
     }
 
@@ -151,6 +160,9 @@ public class WorkbookCommand extends WorkbookStyleCommand {
         this.row = row;
         // 重置行索引
         this.nextCellIndex = 0;
+        if (defaultRowHeight != null) {
+            setRowHeight(defaultRowHeight);
+        }
         return row;
     }
 
@@ -169,20 +181,6 @@ public class WorkbookCommand extends WorkbookStyleCommand {
         return row;
     }
 
-    /**
-     * 创建行<BR/>
-     * 注入样式
-     *
-     * @return 行
-     */
-    public Row createRow(CellStyle cellStyle) {
-        Row row = createRow();
-        if (cellStyle != null) {
-            row.setRowStyle(cellStyle);
-        }
-        return row;
-    }
-
     public Row getRow() {
         return this.row;
     }
@@ -195,6 +193,9 @@ public class WorkbookCommand extends WorkbookStyleCommand {
     public Cell createCell() {
         Cell cell = row.createCell(nextCellIndex++);
         this.cell = cell;
+        if (defaultColumnWidth != null) {
+            setCellWidth(defaultColumnWidth);
+        }
         return cell;
     }
 
@@ -213,50 +214,54 @@ public class WorkbookCommand extends WorkbookStyleCommand {
         return cell;
     }
 
-    /**
-     * 创建单元格<BR/>
-     * 注入样式
-     *
-     * @return 单元格
-     */
-    public Cell createCell(CellStyle cellStyle) {
-        Cell cell = createCell();
-        if (cellStyle != null) {
-            cell.setCellStyle(cellStyle);
-        }
-        return cell;
-    }
-
     public Cell getCell() {
         return this.cell;
     }
 
+    private Integer defaultColumnWidth = null;
+
+    private Short defaultRowHeight = null;
+
     /**
      * 设置列默认列宽<BR/>
+     * 创建行后默认宽度会清除<BR/>
      *
      * @param width 宽度
      */
     public void setDefaultColumnWidth(int width) {
-        sheet.setDefaultColumnWidth(width);
+        defaultColumnWidth = width;
     }
 
     /**
      * 设置列默认行高<BR/>
+     * 创建行后默认高度会清除<BR/>
      *
      * @param height 高度
      */
     public void setDefaultRowHeight(short height) {
-        sheet.setDefaultRowHeight(height);
+        defaultRowHeight = height;
     }
 
     private boolean lateRenderFlag;
     private Map<Integer, Integer> lateRenderCellWidth;
+    private Map<Integer, Short> lateRenderRowHeight;
 
-    protected void lateRender() {
+    public void lateRender() {
         if (!lateRenderFlag) {
             lateRenderCellWidth.forEach(sheet::setColumnWidth);
+            lateRenderCellWidth = new HashMap<>(16);
+
+            lateRenderRowHeight.forEach((key, value) -> {
+                sheet.getRow(key).setHeight(value);
+            });
+            lateRenderRowHeight = new HashMap<>(16);
+
             lateRenderFlag = true;
         }
+    }
+
+    public void setRowHeight(short height) {
+        lateRenderRowHeight.put(currentRowIndex(), height);
     }
 
     /**
@@ -265,7 +270,7 @@ public class WorkbookCommand extends WorkbookStyleCommand {
      *
      * @param width 宽度
      */
-    public void setCurrentCellWidth(int width) {
+    public void setCellWidth(int width) {
         lateRenderCellWidth.put(currentCowIndex(), width);
     }
 
@@ -378,13 +383,13 @@ public class WorkbookCommand extends WorkbookStyleCommand {
         }
     }
 
-    public String textReplace(String target) {
-        if (textReplaceMap == null) {
+    public String eval(String target) {
+        if (vars == null) {
             return target;
         }
-        Set<Map.Entry<String, String>> entrySet = textReplaceMap.entrySet();
-        for (Map.Entry<String, String> entry : entrySet) {
-            target = target.replace(entry.getKey(), entry.getValue());
+        Set<Map.Entry<String, Object>> entrySet = vars.entrySet();
+        for (Map.Entry<String, Object> entry : entrySet) {
+            target = target.replace(entry.getKey(), String.valueOf(entry.getValue()));
         }
         return target;
     }
@@ -443,7 +448,4 @@ public class WorkbookCommand extends WorkbookStyleCommand {
         this.cell.setCellStyle(styleMap.get(styleName));
     }
 
-    public void setCellStyle(CellStyle style) {
-        this.cell.setCellStyle(style);
-    }
 }

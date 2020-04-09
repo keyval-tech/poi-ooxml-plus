@@ -1,6 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
-import com.kovizone.poi.ooxml.plus.processor.SheetConfigProcessors;
+import com.kovizone.poi.ooxml.plus.anno.base.Processor;
+import com.kovizone.poi.ooxml.plus.processor.impl.WriteSheetInitProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,8 +15,8 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Processor(SheetConfigProcessors.class)
-public @interface SheetConfig {
+@Processor(WriteSheetInitProcessors.class)
+public @interface WriteSheetInit {
 
     /**
      * 指定显示工作簿名<BR/>
@@ -24,13 +25,21 @@ public @interface SheetConfig {
      *
      * @return 工作簿名
      */
-    String sheetName() default "Sheet#{sheetNum}";
+    String sheetName() default "工作簿#{sheetNum}";
 
     /**
-     * 默认单元格宽度
+     * 默认单元格宽度<BR/>
+     * 创建行后默认宽度会清除<BR/>
      *
      * @return 默认行宽
      */
-    int defaultColumnWidth() default 0;
+    int defaultColumnWidth() default -1;
 
+    /**
+     * 默认行高度<BR/>
+     * 创建行后默认高度会清除<BR/>
+     *
+     * @return 默认高度
+     */
+    short defaultRowHeight() default -1;
 }

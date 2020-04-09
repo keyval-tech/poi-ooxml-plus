@@ -1,6 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
-import com.kovizone.poi.ooxml.plus.processor.StringReplaceProcessors;
+import com.kovizone.poi.ooxml.plus.anno.base.Processor;
+import com.kovizone.poi.ooxml.plus.processor.impl.WriteStringReplaceProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,16 +14,16 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
-@Processor(StringReplaceProcessors.class)
+@Processor(WriteStringReplaceProcessors.class)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface StringReplace {
+public @interface WriteStringReplace {
 
     /**
-     * 关键字
+     * 正则表达式
      *
      * @return 关键字
      */
-    String[] target();
+    String[] regex() default "";
 
     /**
      * 转义词

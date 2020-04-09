@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.util;
 
-import com.kovizone.poi.ooxml.plus.WorkbookConstant;
 import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
+import org.mvel2.MVEL;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -23,33 +23,10 @@ public class StringUtils {
         return false;
     }
 
-    /**
-     * 去除多余空格
-     *
-     * @param arg 原字符串
-     * @return 新字符串
-     */
-    public static String subExtraSpace(String arg) {
-        return arg.replaceAll(" +", " ").trim();
+    public static String upperFirstCase(String arg) {
+        char[] cs = arg.toCharArray();
+        cs[0] -= 32;
+        return String.valueOf(cs);
     }
 
-    public static String replaceFieldValue(String arg, Object object) throws PoiOoxmlPlusException {
-        Map<String, String> paramMap = new HashMap<>();
-        List<String> fieldNameList = FieldUtils.getFieldNameList(arg);
-        for (String fieldName : fieldNameList) {
-            try {
-                Field field = object.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                String node = String.valueOf(field.get(object));
-                paramMap.put("#[" + fieldName + "]", node);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                throw new PoiOoxmlPlusException("没有找到属性：" + fieldName);
-            }
-        }
-        Set<Map.Entry<String, String>> entrySet = paramMap.entrySet();
-        for (Map.Entry<String, String> entry : entrySet) {
-            arg = arg.replace(entry.getKey(), entry.getValue());
-        }
-        return arg;
-    }
 }

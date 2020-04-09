@@ -1,6 +1,6 @@
 package com.kovizone.poi.ooxml.plus.style;
 
-import com.kovizone.poi.ooxml.plus.WorkbookStyleCommand;
+import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import org.apache.poi.ss.usermodel.*;
 
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author KoviChen
  */
-public interface WorkbookStyleManager {
+public interface ExcelStyleManager {
 
     /**
      * 单元格样式管理器
@@ -18,5 +18,5 @@ public interface WorkbookStyleManager {
      * @param command 样式创建指令
      * @return 样式Map
      */
-    Map<String, CellStyle> styleMap(WorkbookStyleCommand command);
+    Map<String, CellStyle> styleMap(ExcelStyleCommand command);
 }

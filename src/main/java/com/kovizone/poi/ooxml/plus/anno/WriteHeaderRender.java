@@ -1,6 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
-import com.kovizone.poi.ooxml.plus.processor.HeaderRenderProcessors;
+import com.kovizone.poi.ooxml.plus.anno.base.Processor;
+import com.kovizone.poi.ooxml.plus.processor.impl.WriteHeaderProcessorProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,8 +15,8 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Processor(HeaderRenderProcessors.class)
-public @interface HeaderRender {
+@Processor(WriteHeaderProcessorProcessors.class)
+public @interface WriteHeaderRender {
 
     /**
      * 表头标题
