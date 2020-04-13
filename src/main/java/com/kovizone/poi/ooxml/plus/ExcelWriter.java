@@ -4,7 +4,6 @@ import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
 import com.kovizone.poi.ooxml.plus.anno.WriteHeader;
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
-import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteHeaderProcessor;
@@ -71,14 +70,6 @@ public class ExcelWriter {
     public ExcelWriter(ExcelStyle excelStyle) {
         super();
         this.excelStyle = excelStyle;
-    }
-
-    public static ExcelWriter getInstance() {
-        return new ExcelWriter();
-    }
-
-    public static ExcelWriter getInstance(ExcelStyle excelStyle) {
-        return new ExcelWriter(excelStyle);
     }
 
     /**
@@ -199,7 +190,7 @@ public class ExcelWriter {
             excelCommand.createRow();
             for (Field field : columnFieldList) {
                 Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
-                excelCommand.createCell(ExcelStyleCommand.DATA_TITLE_CELL_STYLE_NAME);
+                excelCommand.createCell();
 
                 for (Annotation clazzAnnotation : clazzAnnotations) {
                     dateTitleProcessor(clazzAnnotation, excelCommand, entityList, field);
