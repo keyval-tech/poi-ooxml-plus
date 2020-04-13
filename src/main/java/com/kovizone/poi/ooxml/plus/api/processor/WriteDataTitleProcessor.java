@@ -1,7 +1,7 @@
-package com.kovizone.poi.ooxml.plus.processor;
+package com.kovizone.poi.ooxml.plus.api.processor;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
+import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public interface WriteDateTitleProcessor {
+public interface WriteDataTitleProcessor {
 
     /**
      * 处理
@@ -20,11 +20,10 @@ public interface WriteDateTitleProcessor {
      * @param excelCommand 基础命令
      * @param entityList      渲染实体集合
      * @param targetField     注解目标属性
-     * @throws PoiOoxmlPlusException 异常
      */
-    void dateTitleProcess(Object annotation,
+    void dataTitleProcess(Object annotation,
                           ExcelCommand excelCommand,
                           List<?> entityList,
                           Field targetField
-    ) throws PoiOoxmlPlusException;
+    );
 }

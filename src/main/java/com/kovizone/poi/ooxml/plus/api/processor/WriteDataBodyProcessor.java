@@ -1,7 +1,7 @@
-package com.kovizone.poi.ooxml.plus.processor;
+package com.kovizone.poi.ooxml.plus.api.processor;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
+import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author 11061
  */
-public interface WriteDateBodyProcessor {
+public interface WriteDataBodyProcessor {
 
 
     /**
@@ -24,14 +24,13 @@ public interface WriteDateBodyProcessor {
      * @param targetField     注解目标属性
      * @param columnValue     注解目标属性值
      * @return 处理后的值
-     * @throws PoiOoxmlPlusException 异常
      */
-    Object dateBodyProcess(Object annotation,
+    Object dataBodyProcess(Object annotation,
                            ExcelCommand excelCommand,
                            List<?> entityList,
                            int entityListIndex,
                            Field targetField,
                            Object columnValue
-    ) throws PoiOoxmlPlusException;
+    );
 
 }

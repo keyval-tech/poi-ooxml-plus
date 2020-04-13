@@ -1,9 +1,8 @@
 package com.kovizone.poi.ooxml.plus.processor.impl;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
-import com.kovizone.poi.ooxml.plus.anno.ColumnConfig;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
-import com.kovizone.poi.ooxml.plus.processor.WriteDateTitleProcessor;
+import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteDataTitleProcessor;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 
 import java.lang.reflect.Field;
@@ -14,19 +13,19 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class ColumnConfigProcessors implements WriteDateTitleProcessor {
+public class WriteColumnConfigProcessors implements WriteDataTitleProcessor {
 
     @Override
-    public void dateTitleProcess(Object annotation,
+    public void dataTitleProcess(Object annotation,
                                  ExcelCommand excelCommand,
                                  List<?> entityList,
-                                 Field targetField) throws PoiOoxmlPlusException {
-        ColumnConfig columnConfig = (ColumnConfig) annotation;
-        String dateTitle = columnConfig.title();
+                                 Field targetField) {
+        WriteColumnConfig writeColumnConfig = (WriteColumnConfig) annotation;
+        String dateTitle = writeColumnConfig.title();
         if (!StringUtils.isEmpty(dateTitle)) {
             excelCommand.setCellValue(dateTitle);
         }
-        int cellWidth = columnConfig.width();
+        int cellWidth = writeColumnConfig.width();
         if (cellWidth >= 0) {
             excelCommand.setCellWidth(cellWidth);
         }

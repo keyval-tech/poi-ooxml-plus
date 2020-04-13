@@ -12,16 +12,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 public class ExcelStyleCommand {
 
     public static final String HEADER_TITLE_CELL_STYLE_NAME = "HEADER_TITLE_CELL_STYLE_NAME";
-    public static final String HEADER_TITLE_ROW_STYLE_NAME = "HEADER_TITLE_ROW_STYLE_NAME";
 
     public static final String HEADER_SUBTITLE_CELL_STYLE_NAME = "HEADER_SUBTITLE_CELL_STYLE_NAME";
-    public static final String HEADER_SUBTITLE_ROW_STYLE_NAME = "HEADER_SUBTITLE_ROW_STYLE_NAME";
 
-    public static final String DATE_TITLE_CELL_STYLE_NAME = "DATE_TITLE_CELL_STYLE_NAME";
-    public static final String DATE_TITLE_ROW_STYLE_NAME = "DATE_TITLE_ROW_STYLE_NAME";
+    public static final String DATA_TITLE_CELL_STYLE_NAME = "DATA_TITLE_CELL_STYLE_NAME";
 
-    public static final String DATE_BODY_CELL_STYLE_NAME = "DATE_BODY_CELL_STYLE_NAME";
-    public static final String DATE_BODY_ROW_STYLE_NAME = "DATE_BODY_ROW_STYLE_NAME";
+    public static final String DATA_BODY_CELL_STYLE_NAME = "DATA_BODY_CELL_STYLE_NAME";
 
     protected ExcelStyleCommand(Workbook workbook) {
         super();

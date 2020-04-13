@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
-import com.kovizone.poi.ooxml.plus.anno.base.Processor;
-import com.kovizone.poi.ooxml.plus.processor.impl.ColumnConfigProcessors;
+import com.kovizone.poi.ooxml.plus.api.anno.Processor;
+import com.kovizone.poi.ooxml.plus.processor.impl.WriteColumnConfigProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,9 +14,9 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
-@Processor(ColumnConfigProcessors.class)
+@Processor(WriteColumnConfigProcessors.class)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ColumnConfig {
+public @interface WriteColumnConfig {
 
 
     /**

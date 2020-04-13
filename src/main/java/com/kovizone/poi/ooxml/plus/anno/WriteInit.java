@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
-import com.kovizone.poi.ooxml.plus.anno.base.Processor;
-import com.kovizone.poi.ooxml.plus.processor.impl.WriteSheetInitProcessors;
+import com.kovizone.poi.ooxml.plus.api.anno.Processor;
+import com.kovizone.poi.ooxml.plus.processor.impl.WriteInitProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,8 +15,8 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Processor(WriteSheetInitProcessors.class)
-public @interface WriteSheetInit {
+@Processor(WriteInitProcessors.class)
+public @interface WriteInit {
 
     /**
      * 指定显示工作簿名<BR/>

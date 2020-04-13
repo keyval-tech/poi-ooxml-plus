@@ -1,16 +1,18 @@
 package com.kovizone.poi.ooxml.plus;
 
-import com.kovizone.poi.ooxml.plus.anno.ColumnConfig;
-import com.kovizone.poi.ooxml.plus.anno.WriteHeaderRender;
-import com.kovizone.poi.ooxml.plus.anno.base.Processor;
+import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
+import com.kovizone.poi.ooxml.plus.anno.WriteHeader;
+import com.kovizone.poi.ooxml.plus.api.anno.Processor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
-import com.kovizone.poi.ooxml.plus.processor.WriteHeaderProcessor;
-import com.kovizone.poi.ooxml.plus.processor.WriteDateTitleProcessor;
-import com.kovizone.poi.ooxml.plus.processor.WriteDateBodyProcessor;
-import com.kovizone.poi.ooxml.plus.processor.WriteSheetInitProcessor;
-import com.kovizone.poi.ooxml.plus.style.ExcelStyleManager;
-import com.kovizone.poi.ooxml.plus.style.ExcelDefaultStyleManager;
+import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
+import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
+import com.kovizone.poi.ooxml.plus.exception.ReflexException;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteHeaderProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteDataTitleProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteSheetInitProcessor;
+import com.kovizone.poi.ooxml.plus.api.anno.style.ExcelStyle;
+import com.kovizone.poi.ooxml.plus.style.ExcelDefaultStyle;
 import com.kovizone.poi.ooxml.plus.util.ReflexUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -30,20 +32,8 @@ import java.util.*;
  */
 @Addressing
 @Resource
-@WriteHeaderRender
-public class ExcelHelper {
-
-    public static final String HEADER_TITLE_CELL_STYLE_NAME = "HEADER_TITLE_CELL_STYLE_NAME";
-    public static final String HEADER_TITLE_ROW_STYLE_NAME = "HEADER_TITLE_ROW_STYLE_NAME";
-
-    public static final String HEADER_SUBTITLE_CELL_STYLE_NAME = "HEADER_SUBTITLE_CELL_STYLE_NAME";
-    public static final String HEADER_SUBTITLE_ROW_STYLE_NAME = "HEADER_SUBTITLE_ROW_STYLE_NAME";
-
-    public static final String DATE_TITLE_CELL_STYLE_NAME = "DATE_TITLE_CELL_STYLE_NAME";
-    public static final String DATE_TITLE_ROW_STYLE_NAME = "DATE_TITLE_ROW_STYLE_NAME";
-
-    public static final String DATE_BODY_CELL_STYLE_NAME = "DATE_BODY_CELL_STYLE_NAME";
-    public static final String DATE_BODY_ROW_STYLE_NAME = "DATE_BODY_ROW_STYLE_NAME";
+@WriteHeader
+public class ExcelWriter {
 
     /**
      * xlsz最大行数
@@ -63,41 +53,41 @@ public class ExcelHelper {
     /**
      * 样式管理气
      */
-    private ExcelStyleManager excelStyleManager;
+    private ExcelStyle excelStyle;
 
     /**
      * 实体类构造器<BR/>
      * 注入默认样式
      */
-    public ExcelHelper() {
+    public ExcelWriter() {
         super();
-        this.excelStyleManager = new ExcelDefaultStyleManager();
+        this.excelStyle = new ExcelDefaultStyle();
     }
 
     /**
      * 实体类构造器<BR/>
      * 注入自定义样式
      */
-    public ExcelHelper(ExcelStyleManager excelStyleManager) {
+    public ExcelWriter(ExcelStyle excelStyle) {
         super();
-        this.excelStyleManager = excelStyleManager;
+        this.excelStyle = excelStyle;
     }
 
-    public static ExcelHelper getInstance() {
-        return new ExcelHelper();
+    public static ExcelWriter getInstance() {
+        return new ExcelWriter();
     }
 
-    public static ExcelHelper getInstance(ExcelStyleManager excelStyleManager) {
-        return new ExcelHelper(excelStyleManager);
+    public static ExcelWriter getInstance(ExcelStyle excelStyle) {
+        return new ExcelWriter(excelStyle);
     }
 
     /**
      * 构造SXSSF工作表
      *
      * @param entityList 实体对象集
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeSXSSF(List<?> entityList) throws PoiOoxmlPlusException {
+    public Workbook writeSXSSF(List<?> entityList) throws ExcelWriteException {
         return writeSXSSF(entityList, null);
     }
 
@@ -106,9 +96,9 @@ public class ExcelHelper {
      *
      * @param entityList           实体对象集
      * @param headerTextReplaceMap 表头替换文本
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeSXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws PoiOoxmlPlusException {
+    public Workbook writeSXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
         Workbook workbook = new SXSSFWorkbook();
         write(workbook, entityList, headerTextReplaceMap);
         return workbook;
@@ -118,9 +108,9 @@ public class ExcelHelper {
      * 构造XSSF工作表
      *
      * @param entityList 实体对象集
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeXSSF(List<?> entityList) throws PoiOoxmlPlusException {
+    public Workbook writeXSSF(List<?> entityList) throws ExcelWriteException {
         return writeXSSF(entityList, null);
     }
 
@@ -129,9 +119,9 @@ public class ExcelHelper {
      *
      * @param entityList           实体对象集
      * @param headerTextReplaceMap 表头替换文本
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws PoiOoxmlPlusException {
+    public Workbook writeXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
         Workbook workbook = new XSSFWorkbook();
         write(workbook, entityList, headerTextReplaceMap);
         return workbook;
@@ -141,9 +131,9 @@ public class ExcelHelper {
      * 构造HSSF工作表
      *
      * @param entityList 实体对象集
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeHSSF(List<?> entityList) throws PoiOoxmlPlusException {
+    public Workbook writeHSSF(List<?> entityList) throws ExcelWriteException {
         return writeHSSF(entityList, null);
     }
 
@@ -152,9 +142,9 @@ public class ExcelHelper {
      *
      * @param entityList           实体对象集
      * @param headerTextReplaceMap 表头替换文本
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeHSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws PoiOoxmlPlusException {
+    public Workbook writeHSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
         Workbook workbook = new HSSFWorkbook();
         write(workbook, entityList, headerTextReplaceMap);
         return workbook;
@@ -165,9 +155,9 @@ public class ExcelHelper {
      *
      * @param workbook   工作表
      * @param entityList 实体对象集
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public void write(Workbook workbook, List<?> entityList) throws PoiOoxmlPlusException {
+    public void write(Workbook workbook, List<?> entityList) throws ExcelWriteException {
         write(workbook, entityList, null);
     }
 
@@ -177,9 +167,9 @@ public class ExcelHelper {
      * @param workbook   工作表
      * @param entityList 实体对象集
      * @param vars       替换文本
-     * @throws PoiOoxmlPlusException 构造异常
+     * @throws ExcelWriteException 构造异常
      */
-    public void write(Workbook workbook, List<?> entityList, Map<String, Object> vars) throws PoiOoxmlPlusException {
+    public void write(Workbook workbook, List<?> entityList, Map<String, Object> vars) throws ExcelWriteException {
 
         if (entityList == null || entityList.isEmpty()) {
             return;
@@ -190,7 +180,7 @@ public class ExcelHelper {
         // 主要属性集
         Class<?> clazz = entityList.get(0).getClass();
         List<Field> columnFieldList = columnFieldList(clazz);
-        ExcelCommand excelCommand = new ExcelCommand(workbook, columnFieldList.size() - 1, vars, excelStyleManager);
+        ExcelCommand excelCommand = new ExcelCommand(workbook, columnFieldList.size() - 1, vars, excelStyle);
 
         // 数据遍历索引
         int dateIndex = 0;
@@ -202,14 +192,14 @@ public class ExcelHelper {
             Annotation[] clazzAnnotations = ReflexUtils.getDeclaredAnnotations(clazz);
             for (Annotation clazzAnnotation : clazzAnnotations) {
                 sheetInitProcessor(clazzAnnotation, excelCommand, clazz, entityList);
-                // 不新增Sheet
+                // headerProcessor子方法里创建行
                 headerProcessor(clazzAnnotation, excelCommand, clazz, entityList);
             }
             // 数据标题
-            excelCommand.createRow(DATE_TITLE_ROW_STYLE_NAME);
+            excelCommand.createRow();
             for (Field field : columnFieldList) {
                 Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
-                excelCommand.createCell(DATE_TITLE_CELL_STYLE_NAME);
+                excelCommand.createCell(ExcelStyleCommand.DATA_TITLE_CELL_STYLE_NAME);
 
                 for (Annotation clazzAnnotation : clazzAnnotations) {
                     dateTitleProcessor(clazzAnnotation, excelCommand, entityList, field);
@@ -228,12 +218,18 @@ public class ExcelHelper {
                     continue sheetCycle;
                 }
 
-                excelCommand.createRow(DATE_BODY_ROW_STYLE_NAME);
+                excelCommand.createRow();
                 for (Field field : columnFieldList) {
                     // 读取默认值
-                    Object value = ReflexUtils.getValue(entity, field);
+                    Object value;
+                    try {
+                        value = ReflexUtils.getValue(entity, field);
+                    } catch (ReflexException e) {
+                        e.printStackTrace();
+                        throw new ExcelWriteException("读取属性值失败;" + e.getMessage());
+                    }
                     Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
-                    excelCommand.createCell(DATE_BODY_CELL_STYLE_NAME);
+                    excelCommand.createCell();
                     for (Annotation clazzAnnotation : clazzAnnotations) {
                         value = dateBodyProcessor(clazzAnnotation, excelCommand, dateIndex, entityList, field, value);
                     }
@@ -250,13 +246,19 @@ public class ExcelHelper {
         }
     }
 
-    private <P> P getProcessor(Class<? extends Annotation> annotationClass, Class<P> processorClass) throws PoiOoxmlPlusException {
+    @SuppressWarnings("unchecked")
+    private <P> P getProcessor(Class<? extends Annotation> annotationClass, Class<P> processorClass) throws ExcelWriteException {
         // 判断注解是否存在处理器
         if (annotationClass.isAnnotationPresent(Processor.class)) {
             Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
             Class<?> processor = processorAnnotation.value();
             if (processorClass.isAssignableFrom(processor)) {
-                return ReflexUtils.newInstance(processorClass);
+                try {
+                    return (P) ReflexUtils.newInstance(processor);
+                } catch (ReflexException e) {
+                    e.printStackTrace();
+                    throw new ExcelWriteException("构造处理器失败;" + e.getMessage());
+                }
             }
         }
         return null;
@@ -268,12 +270,12 @@ public class ExcelHelper {
      * @param annotation   注解
      * @param excelCommand 基础命令
      * @param entityList   实体集
-     * @throws PoiOoxmlPlusException 异常
+     * @throws ExcelWriteException 异常
      */
     private void sheetInitProcessor(Annotation annotation,
                                     ExcelCommand excelCommand,
                                     Class<?> clazz,
-                                    List<?> entityList) throws PoiOoxmlPlusException {
+                                    List<?> entityList) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         WriteSheetInitProcessor writeSheetInitProcessor = getProcessor(annotationClass, WriteSheetInitProcessor.class);
         if (writeSheetInitProcessor != null) {
@@ -291,16 +293,17 @@ public class ExcelHelper {
      * @param annotation   注解
      * @param excelCommand 基础命令
      * @param entityList   实体集
-     * @throws PoiOoxmlPlusException 异常
+     * @throws ExcelWriteException 异常
      */
     private void headerProcessor(Annotation annotation,
                                  ExcelCommand excelCommand,
                                  Class<?> clazz,
-                                 List<?> entityList) throws PoiOoxmlPlusException {
+                                 List<?> entityList) throws ExcelWriteException {
 
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         WriteHeaderProcessor writeHeaderProcessor = getProcessor(annotationClass, WriteHeaderProcessor.class);
         if (writeHeaderProcessor != null) {
+            excelCommand.createRow();
             Object annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
             writeHeaderProcessor.headerProcess(annotationEntity,
                     excelCommand,
@@ -316,17 +319,17 @@ public class ExcelHelper {
      * @param excelCommand 基础命令
      * @param entityList   实体集
      * @param targetField  注解目标属性
-     * @throws PoiOoxmlPlusException 异常
+     * @throws ExcelWriteException 异常
      */
     private void dateTitleProcessor(Annotation annotation,
                                     ExcelCommand excelCommand,
                                     List<?> entityList,
-                                    Field targetField) throws PoiOoxmlPlusException {
+                                    Field targetField) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteDateTitleProcessor writeDateTitleProcessor = getProcessor(annotationClass, WriteDateTitleProcessor.class);
-        if (writeDateTitleProcessor != null) {
+        WriteDataTitleProcessor writeDataTitleProcessor = getProcessor(annotationClass, WriteDataTitleProcessor.class);
+        if (writeDataTitleProcessor != null) {
             Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
-            writeDateTitleProcessor.dateTitleProcess(annotationEntity,
+            writeDataTitleProcessor.dataTitleProcess(annotationEntity,
                     excelCommand,
                     entityList,
                     targetField);
@@ -342,22 +345,22 @@ public class ExcelHelper {
      * @param targetField  注解目标属性
      * @param columnValue  注解目标属性值
      * @return 注解处理器更新后的值
-     * @throws PoiOoxmlPlusException 异常
+     * @throws ExcelWriteException 异常
      */
     private Object dateBodyProcessor(Annotation annotation,
                                      ExcelCommand excelCommand,
                                      int entityListIndex,
                                      List<?> entityList,
                                      Field targetField,
-                                     Object columnValue) throws PoiOoxmlPlusException {
+                                     Object columnValue) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteDateBodyProcessor writeDateBodyProcessor = getProcessor(annotationClass, WriteDateBodyProcessor.class);
-        if (writeDateBodyProcessor != null) {
+        WriteDataBodyProcessor writeDataBodyProcessor = getProcessor(annotationClass, WriteDataBodyProcessor.class);
+        if (writeDataBodyProcessor != null) {
             Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
             if (annotationEntity == null) {
                 annotationEntity = entityList.get(entityListIndex).getClass().getDeclaredAnnotation(annotationClass);
             }
-            columnValue = writeDateBodyProcessor.dateBodyProcess(annotationEntity,
+            columnValue = writeDataBodyProcessor.dataBodyProcess(annotationEntity,
                     excelCommand,
                     entityList,
                     entityListIndex,
@@ -379,7 +382,7 @@ public class ExcelHelper {
      * @param clazz 类
      * @return 获取有@PoiColumn注解的属性集合
      */
-    private List<Field> columnFieldList(Class<?> clazz) throws PoiOoxmlPlusException {
+    private List<Field> columnFieldList(Class<?> clazz) throws ExcelWriteException {
         // 静态缓存
         List<Field> poiColumnFieldList = COLUMN_FIELD_LIST_CACHE.get(clazz);
         if (poiColumnFieldList != null) {
@@ -393,11 +396,11 @@ public class ExcelHelper {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
-                if (field.isAnnotationPresent(ColumnConfig.class)) {
-                    ColumnConfig columnConfig = field.getDeclaredAnnotation(ColumnConfig.class);
-                    int sort = columnConfig.sort();
+                if (field.isAnnotationPresent(WriteColumnConfig.class)) {
+                    WriteColumnConfig writeColumnConfig = field.getDeclaredAnnotation(WriteColumnConfig.class);
+                    int sort = writeColumnConfig.sort();
                     if (sortMap.get(sort) != null) {
-                        throw new PoiOoxmlPlusException("属性 " + field.getName() + " 的排序号被属性 " + sortMap.get(sort).getName() + " 占用：" + sort);
+                        throw new ExcelWriteException("属性 " + field.getName() + " 的排序号被属性 " + sortMap.get(sort).getName() + " 占用：" + sort);
                     }
                     sortList.add(sort);
                     sortMap.put(sort, field);

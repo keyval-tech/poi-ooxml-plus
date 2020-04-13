@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.command;
 
-import com.kovizone.poi.ooxml.plus.ExcelHelper;
-import com.kovizone.poi.ooxml.plus.style.ExcelStyleManager;
+import com.kovizone.poi.ooxml.plus.ExcelWriter;
+import com.kovizone.poi.ooxml.plus.api.anno.style.ExcelStyle;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -18,7 +18,7 @@ import java.util.*;
  */
 public class ExcelCommand {
 
-    public ExcelCommand(Workbook workbook, int cellSize, Map<String, Object> vars, ExcelStyleManager excelStyleManager) {
+    public ExcelCommand(Workbook workbook, int cellSize, Map<String, Object> vars, ExcelStyle excelStyle) {
         super();
         this.workbook = workbook;
         this.cellSize = cellSize;
@@ -28,7 +28,7 @@ public class ExcelCommand {
         this.nextRowIndex = 0;
         this.lateRenderCellWidth = new HashMap<>(16);
         this.lateRenderRowHeight = new HashMap<>(16);
-        this.styleMap = excelStyleManager.styleMap(new ExcelStyleCommand(workbook));
+        this.styleMap = excelStyle.styleMap(new ExcelStyleCommand(workbook));
     }
 
     /**
@@ -114,11 +114,11 @@ public class ExcelCommand {
     public void createSheet(String sheetName) {
         Sheet sheet;
         if (StringUtils.isEmpty(sheetName)) {
-            if (!sheetName.contains(ExcelHelper.SHEET_NUM)) {
-                sheetName = sheetName + ExcelHelper.SHEET_NUM;
+            if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
+                sheetName = sheetName + ExcelWriter.SHEET_NUM;
             }
             sheet = workbook.createSheet(sheetName.replace(
-                    ExcelHelper.SHEET_NUM,
+                    ExcelWriter.SHEET_NUM,
                     String.valueOf((sheetIndex) + 1)));
         } else {
             sheet = workbook.createSheet();
@@ -135,14 +135,15 @@ public class ExcelCommand {
         }
         lateRenderFlag = false;
         sheetIndex++;
+        setDefaultRowHeight(null);
     }
 
     public void setSheetName(String sheetName) {
-        if (!sheetName.contains(ExcelHelper.SHEET_NUM)) {
-            sheetName = sheetName + ExcelHelper.SHEET_NUM;
+        if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
+            sheetName = sheetName + ExcelWriter.SHEET_NUM;
         }
         workbook.setSheetName(currentSheetIndex(), sheetName.replace(
-                ExcelHelper.SHEET_NUM,
+                ExcelWriter.SHEET_NUM,
                 String.valueOf(currentSheetIndex() + 1)));
     }
 
@@ -163,6 +164,7 @@ public class ExcelCommand {
         if (defaultRowHeight != null) {
             setRowHeight(defaultRowHeight);
         }
+        setDefaultColumnWidth(null);
         return row;
     }
 
@@ -228,17 +230,17 @@ public class ExcelCommand {
      *
      * @param width 宽度
      */
-    public void setDefaultColumnWidth(int width) {
+    public void setDefaultColumnWidth(Integer width) {
         defaultColumnWidth = width;
     }
 
     /**
      * 设置列默认行高<BR/>
-     * 创建行后默认高度会清除<BR/>
+     * 创建工作簿后默认高度会清除<BR/>
      *
      * @param height 高度
      */
-    public void setDefaultRowHeight(short height) {
+    public void setDefaultRowHeight(Short height) {
         defaultRowHeight = height;
     }
 
@@ -440,12 +442,22 @@ public class ExcelCommand {
         }
     }
 
-    public CellStyle getCellStyle(String styleName) {
+    public CellStyle getStyle(String styleName) {
         return styleMap.get(styleName);
     }
 
     public void setCellStyle(String styleName) {
-        this.cell.setCellStyle(styleMap.get(styleName));
+        CellStyle cellStyle = getStyle(styleName);
+        if (cellStyle != null) {
+            this.cell.setCellStyle(cellStyle);
+        }
+    }
+
+    public void setRowStyle(String styleName) {
+        CellStyle cellStyle = getStyle(styleName);
+        if (cellStyle != null) {
+            this.row.setRowStyle(cellStyle);
+        }
     }
 
 }

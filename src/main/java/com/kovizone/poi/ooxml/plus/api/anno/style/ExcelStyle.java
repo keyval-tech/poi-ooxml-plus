@@ -1,4 +1,4 @@
-package com.kovizone.poi.ooxml.plus.style;
+package com.kovizone.poi.ooxml.plus.api.anno.style;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import org.apache.poi.ss.usermodel.*;
@@ -10,7 +10,7 @@ import java.util.Map;
  *
  * @author KoviChen
  */
-public interface ExcelStyleManager {
+public interface ExcelStyle {
 
     /**
      * 单元格样式管理器

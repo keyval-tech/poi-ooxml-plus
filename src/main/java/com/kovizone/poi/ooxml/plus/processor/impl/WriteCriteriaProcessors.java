@@ -2,9 +2,8 @@ package com.kovizone.poi.ooxml.plus.processor.impl;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteCriteria;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
-import com.kovizone.poi.ooxml.plus.processor.WriteDateBodyProcessor;
-import com.kovizone.poi.ooxml.plus.util.MvelUtils;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.util.ElUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -14,21 +13,21 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class WriteCriteriaProcessors implements WriteDateBodyProcessor {
+public class WriteCriteriaProcessors implements WriteDataBodyProcessor {
 
     @Override
-    public Object dateBodyProcess(Object annotation,
+    public Object dataBodyProcess(Object annotation,
                                   ExcelCommand excelCommand,
                                   List<?> entityList,
                                   int entityListIndex,
                                   Field targetField,
-                                  Object columnValue) throws PoiOoxmlPlusException {
+                                  Object columnValue) {
 
         if (columnValue == null) {
             return null;
         }
         WriteCriteria writeCriteria = (WriteCriteria) annotation;
-        if (MvelUtils.parseBoolean(writeCriteria.value(), entityList, entityListIndex)) {
+        if (ElUtils.parseBoolean(writeCriteria.value(), entityList, entityListIndex)) {
             return columnValue;
         }
         return null;

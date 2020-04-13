@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
-import com.kovizone.poi.ooxml.plus.processor.impl.WriteStringReplaceAllProcessors;
+import com.kovizone.poi.ooxml.plus.processor.impl.WriteHeaderProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,27 +9,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * String类型参数转义
+ * 指定表头数据
  *
  * @author KoviChen
  */
-@Target({ElementType.FIELD})
-@Processor(WriteStringReplaceAllProcessors.class)
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WriteStringReplaceAll {
+@Processor(WriteHeaderProcessors.class)
+public @interface WriteHeader {
 
     /**
-     * 关键字
+     * 表头标题
      *
-     * @return 关键字
+     * @return 标题
      */
-    String[] target() default "";
+    String value() default "";
 
     /**
-     * 转义词
+     * 标题单元格高度
      *
-     * @return 转义词
+     * @return 标题单元格高度
      */
-    String[] replacement();
+    short height() default 1000;
 
 }

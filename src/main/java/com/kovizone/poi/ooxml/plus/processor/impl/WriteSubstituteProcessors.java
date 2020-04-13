@@ -2,9 +2,8 @@ package com.kovizone.poi.ooxml.plus.processor.impl;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteSubstitute;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
-import com.kovizone.poi.ooxml.plus.processor.WriteDateBodyProcessor;
-import com.kovizone.poi.ooxml.plus.util.MvelUtils;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.util.ElUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -14,19 +13,19 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class WriteSubstituteProcessors implements WriteDateBodyProcessor {
+public class WriteSubstituteProcessors implements WriteDataBodyProcessor {
 
     @Override
-    public Object dateBodyProcess(Object annotation,
+    public Object dataBodyProcess(Object annotation,
                                   ExcelCommand excelCommand,
                                   List<?> entityList,
                                   int entityListIndex,
                                   Field targetField,
-                                  Object columnValue) throws PoiOoxmlPlusException {
+                                  Object columnValue) {
         WriteSubstitute writeSubstitute = (WriteSubstitute) annotation;
         Object object = entityList.get(entityListIndex);
-        if (MvelUtils.parseBoolean(writeSubstitute.criteria(), entityList,entityListIndex)) {
-            return MvelUtils.parseString(writeSubstitute.value(), entityList,entityListIndex);
+        if (ElUtils.parseBoolean(writeSubstitute.criteria(), entityList,entityListIndex)) {
+            return ElUtils.parseString(writeSubstitute.value(), entityList,entityListIndex);
         }
         return columnValue;
     }

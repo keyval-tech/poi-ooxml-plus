@@ -1,6 +1,6 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
-import com.kovizone.poi.ooxml.plus.anno.base.Processor;
+import com.kovizone.poi.ooxml.plus.api.anno.Processor;
 import com.kovizone.poi.ooxml.plus.processor.impl.WritePrefixProcessors;
 
 import java.lang.annotation.ElementType;

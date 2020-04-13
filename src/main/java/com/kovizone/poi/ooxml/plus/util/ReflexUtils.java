@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.util;
 
 
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
+import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
  */
 public class ReflexUtils {
 
-    public static Field getDeclaredField(Class<?> clazz, String fieldName) throws PoiOoxmlPlusException {
+    public static Field getDeclaredField(Class<?> clazz, String fieldName) throws ReflexException {
         Field field = null;
         while (!clazz.equals(Object.class)) {
             try {
@@ -27,7 +27,7 @@ public class ReflexUtils {
                 clazz = clazz.getSuperclass();
             }
         }
-        throw new PoiOoxmlPlusException("找不到属性：" + fieldName);
+        throw new ReflexException("找不到属性：" + fieldName);
     }
 
     public static Annotation[] getDeclaredAnnotations(Class<?> clazz) {
@@ -48,15 +48,15 @@ public class ReflexUtils {
         return annotations;
     }
 
-    public static Object getValue(Object object, String fieldName) throws PoiOoxmlPlusException {
+    public static Object getValue(Object object, String fieldName) throws ReflexException {
         try {
             return getValue(object, object.getClass().getDeclaredField(fieldName));
         } catch (NoSuchFieldException e) {
-            throw new PoiOoxmlPlusException("找不到属性：" + fieldName);
+            throw new ReflexException("找不到属性：" + fieldName);
         }
     }
 
-    public static Object getValue(Object object, Field field) throws PoiOoxmlPlusException {
+    public static Object getValue(Object object, Field field) throws ReflexException {
         Class<?> clazz = object.getClass();
         try {
             Method getMethod = clazz.getDeclaredMethod("get".concat(StringUtils.upperFirstCase(field.getName())));
@@ -66,20 +66,22 @@ public class ReflexUtils {
             try {
                 return field.get(object);
             } catch (IllegalAccessException ex) {
-                throw new PoiOoxmlPlusException("读取值失败：" + field.toString());
+                e.printStackTrace();
+                throw new ReflexException("读取属性值失败：" + field.toString());
             }
         }
     }
 
-    public static void setValue(Object object, String fieldName, Object value) throws PoiOoxmlPlusException {
+    public static void setValue(Object object, String fieldName, Object value) throws ReflexException {
         try {
             setValue(object, object.getClass().getDeclaredField(fieldName), value);
         } catch (NoSuchFieldException e) {
-            throw new PoiOoxmlPlusException("找不到属性：" + fieldName);
+            e.printStackTrace();
+            throw new ReflexException("找不到属性：" + fieldName);
         }
     }
 
-    public static void setValue(Object object, Field field, Object value) throws PoiOoxmlPlusException {
+    public static void setValue(Object object, Field field, Object value) throws ReflexException {
         Class<?> clazz = object.getClass();
         try {
             Method setMethod = clazz.getDeclaredMethod("set".concat(StringUtils.upperFirstCase(field.getName())), field.getType());
@@ -89,17 +91,18 @@ public class ReflexUtils {
             try {
                 field.set(object, value);
             } catch (IllegalAccessException ex) {
-                throw new PoiOoxmlPlusException("设置值失败：" + field.toString());
+                e.printStackTrace();
+                throw new ReflexException("设置值失败：" + field.toString());
             }
         }
     }
 
-    public static <T> T newInstance(Class<T> clazz) throws PoiOoxmlPlusException {
+    public static <T> T newInstance(Class<T> clazz) throws ReflexException {
         return newInstance(clazz, new Object[0]);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T newInstance(Class<T> clazz, Object... params) throws PoiOoxmlPlusException {
+    public static <T> T newInstance(Class<T> clazz, Object... params) throws ReflexException {
         if (params == null) {
             params = new Object[0];
         }
@@ -113,6 +116,6 @@ public class ReflexUtils {
                 }
             }
         }
-        throw new PoiOoxmlPlusException("没有找到合适的构造方法：" + clazz.toString());
+        throw new ReflexException("没有找到合适的构造方法：" + clazz.toString());
     }
 }

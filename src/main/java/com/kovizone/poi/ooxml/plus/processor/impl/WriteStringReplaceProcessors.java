@@ -2,9 +2,8 @@ package com.kovizone.poi.ooxml.plus.processor.impl;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteStringReplace;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
-import com.kovizone.poi.ooxml.plus.processor.WriteDateBodyProcessor;
-import com.kovizone.poi.ooxml.plus.util.MvelUtils;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.util.ElUtils;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -16,22 +15,22 @@ import java.util.Map;
  *
  * @author KoviChen
  */
-public class WriteStringReplaceProcessors implements WriteDateBodyProcessor {
+public class WriteStringReplaceProcessors implements WriteDataBodyProcessor {
 
     @Override
-    public Object dateBodyProcess(Object annotation,
+    public Object dataBodyProcess(Object annotation,
                                   ExcelCommand excelCommand,
                                   List<?> entityList,
                                   int entityListIndex,
                                   Field targetField,
-                                  Object columnValue) throws PoiOoxmlPlusException {
+                                  Object columnValue) {
         WriteStringReplace writeStringReplace = (WriteStringReplace) annotation;
 
         String[] target = writeStringReplace.regex();
         String[] replacement = writeStringReplace.replacement();
 
         if (target.length != replacement.length || target.length == 0) {
-            throw new PoiOoxmlPlusException("@StringReplace配置有误");
+            return columnValue;
         }
 
         String strValue = String.valueOf(columnValue);
@@ -40,8 +39,8 @@ public class WriteStringReplaceProcessors implements WriteDateBodyProcessor {
         paramMap.put("i", entityListIndex);
         for (int i = 0; i < target.length; i++) {
             strValue = strValue
-                    .replace(MvelUtils.parseString(target[i], entityList, entityListIndex),
-                            MvelUtils.parseString(replacement[i], entityList, entityListIndex));
+                    .replace(ElUtils.parseString(target[i], entityList, entityListIndex),
+                            ElUtils.parseString(replacement[i], entityList, entityListIndex));
         }
         return strValue;
     }

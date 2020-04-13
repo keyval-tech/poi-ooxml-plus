@@ -2,9 +2,8 @@ package com.kovizone.poi.ooxml.plus.processor.impl;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteSuffix;
-import com.kovizone.poi.ooxml.plus.exception.PoiOoxmlPlusException;
-import com.kovizone.poi.ooxml.plus.processor.WriteDateBodyProcessor;
-import com.kovizone.poi.ooxml.plus.util.MvelUtils;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.util.ElUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -14,18 +13,18 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class WriteSuffixProcessors implements WriteDateBodyProcessor {
+public class WriteSuffixProcessors implements WriteDataBodyProcessor {
 
     @Override
-    public Object dateBodyProcess(Object annotation,
+    public Object dataBodyProcess(Object annotation,
                                   ExcelCommand excelCommand,
                                   List<?> entityList,
                                   int entityListIndex,
                                   Field targetField,
-                                  Object columnValue) throws PoiOoxmlPlusException {
+                                  Object columnValue) {
         WriteSuffix writeSuffix = (WriteSuffix) annotation;
 
         return String.valueOf(columnValue)
-                .concat(MvelUtils.parseString(writeSuffix.value(), entityList,entityListIndex));
+                .concat(ElUtils.parseString(writeSuffix.value(), entityList,entityListIndex));
     }
 }
