@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.command;
 
 import com.kovizone.poi.ooxml.plus.ExcelWriter;
-import com.kovizone.poi.ooxml.plus.api.anno.style.ExcelStyle;
+import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;

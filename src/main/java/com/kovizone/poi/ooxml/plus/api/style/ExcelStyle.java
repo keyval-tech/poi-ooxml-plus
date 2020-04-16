@@ -1,4 +1,4 @@
-package com.kovizone.poi.ooxml.plus.api.anno.style;
+package com.kovizone.poi.ooxml.plus.api.style;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import org.apache.poi.ss.usermodel.*;

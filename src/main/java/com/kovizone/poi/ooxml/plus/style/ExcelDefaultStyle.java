@@ -1,6 +1,6 @@
 package com.kovizone.poi.ooxml.plus.style;
 
-import com.kovizone.poi.ooxml.plus.api.anno.style.ExcelStyle;
+import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
 import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import org.apache.poi.ss.usermodel.*;
 

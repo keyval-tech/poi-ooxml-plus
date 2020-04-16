@@ -1,5 +1,7 @@
 package com.kovizone.poi.ooxml.plus.util;
 
+import org.apache.poi.ss.formula.functions.T;
+
 import java.util.Arrays;
 
 /**
@@ -9,34 +11,48 @@ import java.util.Arrays;
  */
 public class ArrayUtils {
 
-    @SafeVarargs
-    public static <T> T[] addTrimAll(T[] original, T[]... arg) {
-        return trim(addAll(original, arg));
+    /**
+     * 数组叠加，去除空项
+     *
+     * @param original 原数组
+     * @param array    叠加数组
+     * @param <T>      泛型
+     * @return 新数组
+     */
+    public static <T> T[] addTrimAll(T[] original, T[] array) {
+        return trim(addAll(original, array));
     }
 
-    @SafeVarargs
-    public static <T> T[] addAll(T[] original, T[]... arg) {
-        if (arg == null) {
+    /**
+     * 数组叠加
+     *
+     * @param original 原数组
+     * @param array    叠加数组
+     * @param <T>      泛型
+     * @return 新数组
+     */
+    public static <T> T[] addAll(T[] original, T[] array) {
+        if (array == null) {
             return original;
         }
-        int newLength = original.length;
-        for (T[] array : arg) {
-            if (array != null) {
-                newLength += array.length;
-            }
-        }
+        int newLength = original.length + array.length;
+
         T[] newArray = Arrays.copyOf(original, newLength);
+
         int i = original.length;
-        for (T[] array : arg) {
-            if (array != null) {
-                for (T t : array) {
-                    newArray[i++] = t;
-                }
-            }
+        for (T t : array) {
+            newArray[i++] = t;
         }
         return newArray;
     }
 
+    /**
+     * 去掉数组中的空项
+     *
+     * @param original 数组
+     * @param <T>      泛型
+     * @return 新数组
+     */
     public static <T> T[] trim(T[] original) {
         if (original == null) {
             return null;
@@ -61,10 +77,5 @@ public class ArrayUtils {
             }
         }
         return Arrays.copyOf(original, original.length - nullSize);
-    }
-
-    public static void main(String[] args) {
-        String[] strings = new String[]{null, "3"};
-        System.out.println("1: " + Arrays.toString(trim(strings)));
     }
 }

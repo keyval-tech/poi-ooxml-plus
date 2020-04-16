@@ -10,7 +10,7 @@ import com.kovizone.poi.ooxml.plus.api.processor.WriteHeaderProcessor;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataTitleProcessor;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteSheetInitProcessor;
-import com.kovizone.poi.ooxml.plus.api.anno.style.ExcelStyle;
+import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
 import com.kovizone.poi.ooxml.plus.style.ExcelDefaultStyle;
 import com.kovizone.poi.ooxml.plus.util.ReflexUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -47,7 +47,7 @@ public class ExcelWriter {
     /**
      * sheet码占位符
      */
-    public static final String SHEET_NUM = "#{sheetNum}";
+    public static final String SHEET_NUM = "[page]";
 
     /**
      * 样式管理气
@@ -271,7 +271,7 @@ public class ExcelWriter {
         WriteSheetInitProcessor writeSheetInitProcessor = getProcessor(annotationClass, WriteSheetInitProcessor.class);
         if (writeSheetInitProcessor != null) {
             Object annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
-            writeSheetInitProcessor.sheetInitProcess(annotationEntity,
+            writeSheetInitProcessor.sheetInitProcess((Annotation) annotationEntity,
                     excelCommand,
                     entityList,
                     clazz);
@@ -296,7 +296,7 @@ public class ExcelWriter {
         if (writeHeaderProcessor != null) {
             excelCommand.createRow();
             Object annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
-            writeHeaderProcessor.headerProcess(annotationEntity,
+            writeHeaderProcessor.headerProcess((Annotation) annotationEntity,
                     excelCommand,
                     entityList,
                     clazz);
@@ -320,7 +320,7 @@ public class ExcelWriter {
         WriteDataTitleProcessor writeDataTitleProcessor = getProcessor(annotationClass, WriteDataTitleProcessor.class);
         if (writeDataTitleProcessor != null) {
             Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
-            writeDataTitleProcessor.dataTitleProcess(annotationEntity,
+            writeDataTitleProcessor.dataTitleProcess((Annotation) annotationEntity,
                     excelCommand,
                     entityList,
                     targetField);
@@ -351,7 +351,7 @@ public class ExcelWriter {
             if (annotationEntity == null) {
                 annotationEntity = entityList.get(entityListIndex).getClass().getDeclaredAnnotation(annotationClass);
             }
-            columnValue = writeDataBodyProcessor.dataBodyProcess(annotationEntity,
+            columnValue = writeDataBodyProcessor.dataBodyProcess((Annotation) annotationEntity,
                     excelCommand,
                     entityList,
                     entityListIndex,
@@ -381,7 +381,7 @@ public class ExcelWriter {
         }
 
         List<Integer> sortList = new ArrayList<>(16);
-        Map<Integer, Field> sortMap = new HashMap<>(16);
+        Map<Field, Integer> sortMap = new HashMap<>(16);
 
         while (!clazz.equals(Object.class)) {
             Field[] fields = clazz.getDeclaredFields();
@@ -390,11 +390,10 @@ public class ExcelWriter {
                 if (field.isAnnotationPresent(WriteColumnConfig.class)) {
                     WriteColumnConfig writeColumnConfig = field.getDeclaredAnnotation(WriteColumnConfig.class);
                     int sort = writeColumnConfig.sort();
-                    if (sortMap.get(sort) != null) {
-                        throw new ExcelWriteException("属性 " + field.getName() + " 的排序号被属性 " + sortMap.get(sort).getName() + " 占用：" + sort);
+                    if (!sortList.contains(sort)) {
+                        sortList.add(sort);
                     }
-                    sortList.add(sort);
-                    sortMap.put(sort, field);
+                    sortMap.put(field, sort);
                 }
             }
             clazz = clazz.getSuperclass();
@@ -403,7 +402,12 @@ public class ExcelWriter {
         Collections.sort(sortList);
         poiColumnFieldList = new ArrayList<>();
         for (Integer sortNum : sortList) {
-            poiColumnFieldList.add(sortMap.get(sortNum));
+            Set<Map.Entry<Field, Integer>> entrySet = sortMap.entrySet();
+            for (Map.Entry<Field, Integer> entry : entrySet) {
+                if (entry.getValue().equals(sortNum)) {
+                    poiColumnFieldList.add(entry.getKey());
+                }
+            }
         }
         COLUMN_FIELD_LIST_CACHE.put(clazz, poiColumnFieldList);
         return poiColumnFieldList;

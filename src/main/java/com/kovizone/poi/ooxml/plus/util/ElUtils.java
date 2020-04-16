@@ -28,70 +28,14 @@ public class ElUtils {
     private static ExpressionParser expressionParser = new SpelExpressionParser();
 
     /**
-     * 数组获取对象操作符（假）
-     */
-    private static final String ARRAY_GET_FALSE = "[i]";
-    /**
-     * 数组获取对象操作符（真）
-     */
-    private static final String ARRAY_GET_TRUE = "[#i]";
-
-    /**
-     * 集合获取对象方法（假）
-     */
-    private static final String LIST_METHOD_GET_FALSE = ".get(i)";
-
-    /**
-     * 集合获取对象方法（真）
-     */
-    private static final String LIST_METHOD_GET_TRUE = ".get(#i)";
-
-    /**
-     * 实体集占位符
-     */
-    private static final String LIST_PLACEHOLDER = "#list";
-
-    /**
-     * 当前实体占位符
-     */
-    private static final String THIS_PLACEHOLDER = "#this";
-
-    /**
-     * 参数名：实体集
-     */
-    private static final String PARAM_LIST = "list";
-
-    /**
-     * 参数名：实体集当前索引
-     */
-    private static final String PARAM_INDEX = "i";
-
-    /**
      * 转义Map
      */
     private static final Map<String, String> ESCAPE_MAP = new HashMap<>();
 
     static {
-        ESCAPE_MAP.put(
-                // #this
-                THIS_PLACEHOLDER,
-                // #list[#i]
-                LIST_PLACEHOLDER.concat(ARRAY_GET_TRUE)
-        );
-
-        ESCAPE_MAP.put(
-                // #list[i]
-                LIST_PLACEHOLDER.concat(ARRAY_GET_FALSE),
-                // #list[#i]
-                LIST_PLACEHOLDER.concat(ARRAY_GET_TRUE)
-        );
-
-        ESCAPE_MAP.put(
-                // #list.get(i)
-                LIST_PLACEHOLDER.concat(LIST_METHOD_GET_FALSE),
-                // #list.get(#i)
-                LIST_PLACEHOLDER.concat(LIST_METHOD_GET_TRUE)
-        );
+        ESCAPE_MAP.put("#this", "#list[#i]");
+        ESCAPE_MAP.put("#list[i]", "#list[#i]");
+        ESCAPE_MAP.put("#list.get(i)", "#list.get(#i)");
     }
 
     /**
@@ -128,11 +72,15 @@ public class ElUtils {
     public static <T> T parse(String expressionString, List<?> entityList, int index, Class<T> clazz) throws ExpressionParseException {
         try {
             Expression expression = expressionParser.parseExpression(escape(expressionString));
-            return expression.getValue(paramMap(entityList, index), clazz);
+            return expression.getValue(evaluationContext(entityList, index), clazz);
         } catch (Exception e) {
-            if (clazz.equals(String.class) && !expressionString.contains("+") && !expressionString.contains(".concat")) {
+            final String splicer = "+";
+            final String splicerMethod = ".concat";
+            if (clazz.equals(String.class)
+                    && !expressionString.contains(splicer)
+                    && !expressionString.contains(splicerMethod)) {
                 Expression expression = expressionParser.parseExpression(escape("'" + expressionString + "'"));
-                return expression.getValue(paramMap(entityList, index), clazz);
+                return expression.getValue(evaluationContext(entityList, index), clazz);
             }
             throw new ExpressionParseException("解析EL表达式失败：" + expressionString + ";" + e.getMessage());
         }
@@ -168,7 +116,7 @@ public class ElUtils {
         return str;
     }
 
-    private static EvaluationContext paramMap(List<?> entityList, int index) throws ExpressionParseException {
+    private static EvaluationContext evaluationContext(List<?> entityList, int index) throws ExpressionParseException {
         EvaluationContext context = new StandardEvaluationContext();
         Object entity = entityList.get(index);
         Field[] fields = entity.getClass().getDeclaredFields();
@@ -179,9 +127,8 @@ public class ElUtils {
                 throw new ExpressionParseException("读取当前实体值失败");
             }
         }
-        context.setVariable(PARAM_LIST, entityList);
-        context.setVariable(PARAM_INDEX, index);
-
+        context.setVariable("list", entityList);
+        context.setVariable("i", index);
         return context;
     }
 }

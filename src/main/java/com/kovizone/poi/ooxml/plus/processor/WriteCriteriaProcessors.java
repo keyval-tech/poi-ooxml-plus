@@ -1,4 +1,4 @@
-package com.kovizone.poi.ooxml.plus.processor.impl;
+package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteCriteria;
@@ -13,23 +13,23 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class WriteCriteriaProcessors implements WriteDataBodyProcessor {
+public class WriteCriteriaProcessors implements WriteDataBodyProcessor<WriteCriteria> {
 
     @Override
-    public Object dataBodyProcess(Object annotation,
+    public Object dataBodyProcess(WriteCriteria writeCriteria,
                                   ExcelCommand excelCommand,
                                   List<?> entityList,
                                   int entityListIndex,
                                   Field targetField,
                                   Object columnValue) {
-
-        if (columnValue == null) {
+        try {
+            if (ElUtils.parseBoolean(writeCriteria.value(), entityList, entityListIndex)) {
+                return columnValue;
+            }
             return null;
+        } catch (Exception e) {
+            String value = ElUtils.parseString(writeCriteria.value(), entityList, entityListIndex);
+            return value;
         }
-        WriteCriteria writeCriteria = (WriteCriteria) annotation;
-        if (ElUtils.parseBoolean(writeCriteria.value(), entityList, entityListIndex)) {
-            return columnValue;
-        }
-        return null;
     }
 }

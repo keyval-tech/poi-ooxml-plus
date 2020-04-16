@@ -1,4 +1,4 @@
-package com.kovizone.poi.ooxml.plus.processor.impl;
+package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteHeader;
@@ -14,14 +14,13 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class WriteHeaderProcessors implements WriteHeaderProcessor {
+public class WriteHeaderProcessors implements WriteHeaderProcessor<WriteHeader> {
 
     @Override
-    public void headerProcess(Object annotation,
+    public void headerProcess(WriteHeader writeHeader,
                               ExcelCommand excelCommand,
                               List<?> entityList,
                               Class<?> clazz) {
-        WriteHeader writeHeader = (WriteHeader) annotation;
         String headerTitle = writeHeader.value();
         if (!StringUtils.isEmpty(headerTitle)) {
             excelCommand.createCell(ExcelStyleCommand.HEADER_TITLE_CELL_STYLE_NAME);

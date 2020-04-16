@@ -1,4 +1,4 @@
-package com.kovizone.poi.ooxml.plus.processor.impl;
+package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataTitleProcessor;
@@ -14,14 +14,13 @@ import java.util.List;
 /**
  * @author KoviChen
  */
-public class WriteInitProcessors implements WriteSheetInitProcessor, WriteDataBodyProcessor, WriteDataTitleProcessor {
+public class WriteInitProcessors implements WriteSheetInitProcessor<WriteInit>, WriteDataBodyProcessor<WriteInit>, WriteDataTitleProcessor<WriteInit> {
 
     @Override
-    public void sheetInitProcess(Object annotation,
+    public void sheetInitProcess(WriteInit writeInit,
                                  ExcelCommand excelCommand,
                                  List<?> entityList,
                                  Class<?> clazz) {
-        WriteInit writeInit = (WriteInit) annotation;
 
         String sheetName = writeInit.sheetName();
         if (!StringUtils.isEmpty(sheetName)) {
@@ -40,7 +39,7 @@ public class WriteInitProcessors implements WriteSheetInitProcessor, WriteDataBo
     }
 
     @Override
-    public Object dataBodyProcess(Object annotation,
+    public Object dataBodyProcess(WriteInit writeInit,
                                   ExcelCommand excelCommand,
                                   List<?> entityList,
                                   int entityListIndex,
@@ -51,7 +50,7 @@ public class WriteInitProcessors implements WriteSheetInitProcessor, WriteDataBo
     }
 
     @Override
-    public void dataTitleProcess(Object annotation, ExcelCommand excelCommand, List<?> entityList, Field targetField) {
+    public void dataTitleProcess(WriteInit writeInit, ExcelCommand excelCommand, List<?> entityList, Field targetField) {
         excelCommand.setCellStyle(ExcelStyleCommand.DATA_TITLE_CELL_STYLE_NAME);
     }
 }

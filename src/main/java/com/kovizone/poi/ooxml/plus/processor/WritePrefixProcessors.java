@@ -1,7 +1,7 @@
-package com.kovizone.poi.ooxml.plus.processor.impl;
+package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
-import com.kovizone.poi.ooxml.plus.anno.WriteSuffix;
+import com.kovizone.poi.ooxml.plus.anno.WritePrefix;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
 import com.kovizone.poi.ooxml.plus.util.ElUtils;
 
@@ -9,22 +9,20 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Suffix注解处理器
+ * Prefix注解处理器
  *
  * @author KoviChen
  */
-public class WriteSuffixProcessors implements WriteDataBodyProcessor {
+public class WritePrefixProcessors implements WriteDataBodyProcessor<WritePrefix> {
 
     @Override
-    public Object dataBodyProcess(Object annotation,
+    public Object dataBodyProcess(WritePrefix writePrefix,
                                   ExcelCommand excelCommand,
                                   List<?> entityList,
                                   int entityListIndex,
                                   Field targetField,
                                   Object columnValue) {
-        WriteSuffix writeSuffix = (WriteSuffix) annotation;
-
-        return String.valueOf(columnValue)
-                .concat(ElUtils.parseString(writeSuffix.value(), entityList,entityListIndex));
+        return ElUtils.parseString(writePrefix.value(), entityList, entityListIndex)
+                .concat(String.valueOf(columnValue));
     }
 }

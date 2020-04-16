@@ -18,11 +18,9 @@ public class Test {
 
     public static void main(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
         List<TestEntity> testEntities = new ArrayList<>();
-        testEntities.add(new TestEntity("1", "2", "00", "4", 1, new Date(), null));
-        testEntities.add(new TestEntity("5", "6", "01", "8", 2, new Date(), "test"));
-        testEntities.add(new TestEntity("9", "10", "02", null, 3, new Date(), null));
-
-        System.out.println(ElUtils.parse("abc", testEntities, 1, String.class));
+        testEntities.add(new TestEntity("1", "2", "00", "4", 1, new Date(), null, null));
+        testEntities.add(new TestEntity("5", "6", "01", "8", 2, new Date(), "test", "test8"));
+        testEntities.add(new TestEntity("9", "10", "02", null, 3, new Date(), null, null));
 
         Workbook workbook = new HSSFWorkbook();
         new ExcelWriter().write(workbook, testEntities, new HashMap<String, Object>() {{
@@ -37,7 +35,7 @@ public class Test {
     @WriteSubheader("日期：#datetime 作者：#author")
     public static class TestEntity {
 
-        @WriteColumnConfig(sort = 10, title = "测试1", width = 5000)
+        @WriteColumnConfig(title = "测试1", width = 5000)
         String test;
 
         @WriteColumnConfig(sort = 20, title = "测试2")
@@ -62,7 +60,11 @@ public class Test {
         @WriteColumnConfig(sort = 70, title = "测试7", width = 10000)
         String test7;
 
-        public TestEntity(String test, String test2, String test3, String test4, Integer test5, Date test6, String test7) {
+        @WriteColumnConfig(sort = 80, title = "测试8", width = 10000)
+        @WriteCriteria("#this.test8 == null ? #this.test2 : #this.test8")
+        String test8;
+
+        public TestEntity(String test, String test2, String test3, String test4, Integer test5, Date test6, String test7, String test8) {
             this.test = test;
             this.test2 = test2;
             this.test3 = test3;
@@ -70,6 +72,7 @@ public class Test {
             this.test5 = test5;
             this.test6 = test6;
             this.test7 = test7;
+            this.test8 = test8;
         }
 
         public String getTest7() {
@@ -126,6 +129,14 @@ public class Test {
 
         public void setTest4(String test4) {
             this.test4 = test4;
+        }
+
+        public String getTest8() {
+            return test8;
+        }
+
+        public void setTest8(String test8) {
+            this.test8 = test8;
         }
     }
 }

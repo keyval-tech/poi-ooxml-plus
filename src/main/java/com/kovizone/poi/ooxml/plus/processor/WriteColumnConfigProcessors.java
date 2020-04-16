@@ -1,4 +1,4 @@
-package com.kovizone.poi.ooxml.plus.processor.impl;
+package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
@@ -13,14 +13,13 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class WriteColumnConfigProcessors implements WriteDataTitleProcessor {
+public class WriteColumnConfigProcessors implements WriteDataTitleProcessor<WriteColumnConfig> {
 
     @Override
-    public void dataTitleProcess(Object annotation,
+    public void dataTitleProcess(WriteColumnConfig writeColumnConfig,
                                  ExcelCommand excelCommand,
                                  List<?> entityList,
                                  Field targetField) {
-        WriteColumnConfig writeColumnConfig = (WriteColumnConfig) annotation;
         String dateTitle = writeColumnConfig.title();
         if (!StringUtils.isEmpty(dateTitle)) {
             excelCommand.setCellValue(dateTitle);

@@ -3,6 +3,7 @@ package com.kovizone.poi.ooxml.plus.api.processor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public interface WriteDataTitleProcessor {
+public interface WriteDataTitleProcessor<A extends Annotation> {
 
     /**
      * 处理
@@ -21,7 +22,7 @@ public interface WriteDataTitleProcessor {
      * @param entityList      渲染实体集合
      * @param targetField     注解目标属性
      */
-    void dataTitleProcess(Object annotation,
+    void dataTitleProcess(A annotation,
                           ExcelCommand excelCommand,
                           List<?> entityList,
                           Field targetField

@@ -1,8 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
-import com.kovizone.poi.ooxml.plus.processor.impl.WriteHeaderProcessors;
-import com.kovizone.poi.ooxml.plus.processor.impl.WriteSubheaderProcessors;
+import com.kovizone.poi.ooxml.plus.processor.WriteSubheaderProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

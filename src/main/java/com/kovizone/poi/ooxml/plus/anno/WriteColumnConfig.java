@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
-import com.kovizone.poi.ooxml.plus.processor.impl.WriteColumnConfigProcessors;
+import com.kovizone.poi.ooxml.plus.processor.WriteColumnConfigProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,7 +24,7 @@ public @interface WriteColumnConfig {
      *
      * @return 排序值
      */
-    int sort();
+    int sort() default 0;
 
     /**
      * 指定显示列名

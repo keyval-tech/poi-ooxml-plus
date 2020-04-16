@@ -1,4 +1,4 @@
-package com.kovizone.poi.ooxml.plus.processor.impl;
+package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.anno.WriteSubheader;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteHeaderProcessor;
@@ -14,14 +14,13 @@ import java.util.List;
  *
  * @author KoviChen
  */
-public class WriteSubheaderProcessors implements WriteHeaderProcessor {
+public class WriteSubheaderProcessors implements WriteHeaderProcessor<WriteSubheader> {
 
     @Override
-    public void headerProcess(Object annotation,
+    public void headerProcess(WriteSubheader writeSubheader,
                               ExcelCommand excelCommand,
                               List<?> entityList,
                               Class<?> clazz) {
-        WriteSubheader writeSubheader = (WriteSubheader) annotation;
         String headerSubtitle = writeSubheader.value();
         if (!StringUtils.isEmpty(headerSubtitle)) {
             excelCommand.createCell(ExcelStyleCommand.HEADER_SUBTITLE_CELL_STYLE_NAME);
