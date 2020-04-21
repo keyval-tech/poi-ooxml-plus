@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,6 +29,7 @@ public class ExcelCommand {
         this.nextRowIndex = 0;
         this.lateRenderCellWidth = new HashMap<>(16);
         this.lateRenderRowHeight = new HashMap<>(16);
+        this.lateRenderAutoChineseCellValueLength = new HashMap<>(16);
         this.styleMap = excelStyle.styleMap(new ExcelStyleCommand(workbook));
     }
 
@@ -247,16 +249,31 @@ public class ExcelCommand {
     private boolean lateRenderFlag;
     private Map<Integer, Integer> lateRenderCellWidth;
     private Map<Integer, Short> lateRenderRowHeight;
+    private Map<Integer, Integer> lateRenderAutoChineseCellValueLength;
 
     public void lateRender() {
         if (!lateRenderFlag) {
-            lateRenderCellWidth.forEach(sheet::setColumnWidth);
+            lateRenderCellWidth.forEach((key, value) -> {
+                if (value > 0) {
+                    sheet.setColumnWidth(key, value);
+                } else {
+                    sheet.autoSizeColumn(key);
+                }
+            });
             lateRenderCellWidth = new HashMap<>(16);
 
             lateRenderRowHeight.forEach((key, value) -> {
                 sheet.getRow(key).setHeight(value);
             });
             lateRenderRowHeight = new HashMap<>(16);
+
+            lateRenderAutoChineseCellValueLength.forEach((key, value) -> {
+                if (value > 0) {
+                    System.out.println("key: " + key + ", value: " + value + ", vlaue* = " + value * 256);
+                    sheet.setColumnWidth(key, value * 2 * 256);
+                }
+            });
+            lateRenderAutoChineseCellValueLength = new HashMap<>(16);
 
             lateRenderFlag = true;
         }
@@ -275,6 +292,15 @@ public class ExcelCommand {
     public void setCellWidth(int width) {
         lateRenderCellWidth.put(currentCowIndex(), width);
     }
+
+    public void autoChineseCellWidth() {
+        lateRenderAutoChineseCellValueLength.put(currentCowIndex(), 0);
+    }
+
+    public void autoCellWidth() {
+        lateRenderCellWidth.put(currentCowIndex(), -1);
+    }
+
 
     /**
      * 合并若干行<BR/>
@@ -402,6 +428,14 @@ public class ExcelCommand {
 
     public void setCellValue(Object value) {
         if (value instanceof String) {
+            int columnIndex = cell.getColumnIndex();
+            Integer autoCellValueLength = lateRenderAutoChineseCellValueLength.get(columnIndex);
+            if (autoCellValueLength != null && autoCellValueLength != -1) {
+                int length = ((String) value).getBytes(StandardCharsets.UTF_8).length;
+                if (length > autoCellValueLength) {
+                    lateRenderAutoChineseCellValueLength.put(cell.getColumnIndex(), length);
+                }
+            }
             cell.setCellValue((String) value);
         }
         if (value instanceof Boolean) {
@@ -440,6 +474,8 @@ public class ExcelCommand {
         if (value instanceof RichTextString) {
             cell.setCellValue((RichTextString) value);
         }
+
+
     }
 
     public CellStyle getStyle(String styleName) {

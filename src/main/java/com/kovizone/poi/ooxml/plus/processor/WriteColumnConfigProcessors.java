@@ -25,8 +25,15 @@ public class WriteColumnConfigProcessors implements WriteDataTitleProcessor<Writ
             excelCommand.setCellValue(dateTitle);
         }
         int cellWidth = writeColumnConfig.width();
-        if (cellWidth >= 0) {
+        if (cellWidth > 0) {
             excelCommand.setCellWidth(cellWidth);
         }
+        if (writeColumnConfig.autoCellWidth()) {
+            excelCommand.autoCellWidth();
+        }
+        if (writeColumnConfig.autoChineseCellWidth()) {
+            excelCommand.autoChineseCellWidth();
+        }
+
     }
 }

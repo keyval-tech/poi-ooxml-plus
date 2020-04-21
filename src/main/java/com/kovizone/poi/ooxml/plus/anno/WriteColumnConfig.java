@@ -34,10 +34,20 @@ public @interface WriteColumnConfig {
     String title();
 
     /**
-     * 列宽设置
+     * 列宽设置<BR/>
      *
      * @return 列宽
      */
     int width() default -1;
+
+    /**
+     * 单元格自动列宽
+     */
+    boolean autoCellWidth() default true;
+
+    /**
+     * 中文单元格自动列宽
+     */
+    boolean autoChineseCellWidth() default false;
 
 }

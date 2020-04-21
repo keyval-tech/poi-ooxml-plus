@@ -53,7 +53,7 @@ public class ElUtils {
             if (result != null) {
                 return result;
             }
-            throw new ExcelWriteException("解析EL表达式失败：" + expressionString);
+            throw new ExpressionParseException("解析EL表达式失败：" + expressionString);
         } catch (Exception e) {
             throw new ExpressionParseException("解析EL表达式失败：" + expressionString + ";" + e.getMessage());
         }
