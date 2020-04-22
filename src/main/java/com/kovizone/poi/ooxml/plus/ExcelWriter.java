@@ -237,7 +237,6 @@ public class ExcelWriter {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private <P> P getProcessor(Class<? extends Annotation> annotationClass, Class<P> processorClass) throws ExcelWriteException {
         // 判断注解是否存在处理器
         if (annotationClass.isAnnotationPresent(Processor.class)) {
@@ -263,6 +262,7 @@ public class ExcelWriter {
      * @param entityList   实体集
      * @throws ExcelWriteException 异常
      */
+    @SuppressWarnings("unchecked")
     private void sheetInitProcessor(Annotation annotation,
                                     ExcelCommand excelCommand,
                                     Class<?> clazz,
@@ -270,8 +270,8 @@ public class ExcelWriter {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         WriteSheetInitProcessor writeSheetInitProcessor = getProcessor(annotationClass, WriteSheetInitProcessor.class);
         if (writeSheetInitProcessor != null) {
-            Object annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
-            writeSheetInitProcessor.sheetInitProcess((Annotation) annotationEntity,
+            Annotation annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
+            writeSheetInitProcessor.sheetInitProcess(annotationEntity,
                     excelCommand,
                     entityList,
                     clazz);
