@@ -3,7 +3,6 @@ package com.kovizone.poi.ooxml.plus.test;
 import com.kovizone.poi.ooxml.plus.ExcelWriter;
 import com.kovizone.poi.ooxml.plus.anno.*;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
-import com.kovizone.poi.ooxml.plus.util.ElUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -43,7 +42,7 @@ public class Test {
         @WriteColumnConfig(sort = 20, title = "测试2")
         String test2;
 
-        @WriteStringReplace(regex = {"'00'", "'01'", "'02'"}, replacement = {"'零零'", "'零一'", "'零二' + #list[i].test2"})
+        @WriteStringReplace(target = {"'00'", "'01'", "'02'"}, replacement = {"'零零'", "'零一'", "'零二' + #list[i].test2"})
         @WriteColumnConfig(sort = 30, title = "测试3")
         String test3;
 

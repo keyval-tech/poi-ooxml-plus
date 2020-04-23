@@ -2,14 +2,12 @@ package com.kovizone.poi.ooxml.plus.command;
 
 import com.kovizone.poi.ooxml.plus.ExcelWriter;
 import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
+import com.kovizone.poi.ooxml.plus.util.ElParser;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
-import org.apache.poi.ss.util.SheetUtil;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -21,7 +19,7 @@ import java.util.*;
  */
 public class ExcelCommand {
 
-    public ExcelCommand(Workbook workbook, int cellSize, Map<String, Object> vars, ExcelStyle excelStyle) {
+    public ExcelCommand(Workbook workbook, int cellSize, Map<String, Object> vars, ExcelStyle excelStyle, List<?> entityList) {
         super();
         this.workbook = workbook;
         this.cellSize = cellSize;
@@ -33,8 +31,23 @@ public class ExcelCommand {
         this.lateRenderRowHeight = new HashMap<>(16);
         this.lateRenderAutoCellValueLength = new HashMap<>(16);
         this.styleMap = excelStyle.styleMap(new ExcelStyleCommand(workbook));
+        this.entityList = entityList;
+        this.elParser = new ElParser(entityList);
+        this.entityListIndex = 0;
     }
 
+    /**
+     * EL解析器
+     */
+    private ElParser elParser;
+    /**
+     * 数据遍历索引
+     */
+    private Integer entityListIndex;
+    /**
+     * 表达式解析器
+     */
+    private List<?> entityList;
     /**
      * 工作表
      */
@@ -56,7 +69,7 @@ public class ExcelCommand {
      */
     private Cell cell;
     /**
-     * 默认最大宽度
+     * 默认最大l列数
      */
     private int cellSize;
     /**
@@ -380,7 +393,7 @@ public class ExcelCommand {
      */
     public void range(CellRangeAddress region, BorderStyle borderTop, BorderStyle borderRight, BorderStyle borderBottom, BorderStyle borderLeft) {
         if (region == null) {
-            region = new CellRangeAddress(currentRowIndex(), currentRowIndex(), 0, cellSize);
+            region = new CellRangeAddress(currentRowIndex(), currentRowIndex(), 0, cellSize - 1);
         }
         sheet.addMergedRegionUnsafe(region);
         if (borderTop != null) {
@@ -471,6 +484,35 @@ public class ExcelCommand {
         if (cellStyle != null) {
             this.row.setRowStyle(cellStyle);
         }
+    }
+
+    public <T> T parse(String expression, Class<T> clazz) {
+        return elParser.parse(expression, entityListIndex, clazz);
+    }
+
+    public String parseString(String expression) {
+        return elParser.parseString(expression, entityListIndex);
+    }
+
+    public Boolean parseBoolean(String expression) {
+        return elParser.parseBoolean(expression, entityListIndex);
+    }
+
+    public List<?> getEntityList() {
+        return entityList;
+    }
+
+    public int currentEntityListIndex() {
+        return entityListIndex;
+    }
+
+    public int nextEntityListIndex() {
+        if (entityListIndex == null) {
+            entityListIndex = 0;
+        } else {
+            entityListIndex++;
+        }
+        return entityListIndex;
     }
 
 }

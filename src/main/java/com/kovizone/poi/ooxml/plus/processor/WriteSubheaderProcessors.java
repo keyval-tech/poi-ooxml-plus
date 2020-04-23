@@ -1,13 +1,12 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
+
 import com.kovizone.poi.ooxml.plus.anno.WriteSubheader;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteHeaderProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
-
-import java.util.List;
 
 /**
  * WriteSubheader注解处理器
@@ -19,7 +18,6 @@ public class WriteSubheaderProcessors implements WriteHeaderProcessor<WriteSubhe
     @Override
     public void headerProcess(WriteSubheader writeSubheader,
                               ExcelCommand excelCommand,
-                              List<?> entityList,
                               Class<?> clazz) {
         String headerSubtitle = writeSubheader.value();
         if (!StringUtils.isEmpty(headerSubtitle)) {

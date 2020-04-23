@@ -23,7 +23,7 @@ public @interface WriteStringReplace {
      *
      * @return 关键字
      */
-    String[] regex() default "";
+    String[] target() default "";
 
     /**
      * 转义词

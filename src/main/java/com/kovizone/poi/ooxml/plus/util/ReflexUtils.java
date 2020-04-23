@@ -2,12 +2,15 @@ package com.kovizone.poi.ooxml.plus.util;
 
 
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 属性工具类
@@ -16,34 +19,69 @@ import java.lang.reflect.Method;
  */
 public class ReflexUtils {
 
+    private static final Map<Class<?>, Field[]> FIELD_ARRAY_CACHE = new HashMap<>();
+    private static final Map<Class<?>, Annotation[]> ANNOTATION_ARRAY_CACHE = new HashMap<>();
+
     public static Field getDeclaredField(Class<?> clazz, String fieldName) throws ReflexException {
-        Field field = null;
-        while (!clazz.equals(Object.class)) {
-            try {
-                field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
+        Field[] fields = getDeclaredFields(clazz);
+        for (Field field : fields) {
+            if (field.getName().equals(fieldName)) {
                 return field;
-            } catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass();
             }
         }
         throw new ReflexException("找不到属性：" + fieldName);
     }
 
-    public static Annotation[] getDeclaredAnnotations(Class<?> clazz) {
-        Annotation[] annotations = new Annotation[0];
-        while (!clazz.equals(Object.class)) {
-            Annotation[] currentAnnotations = clazz.getDeclaredAnnotations();
-            for (int i = 0; i < currentAnnotations.length; i++) {
-                for (Annotation annotation : annotations) {
-                    if (currentAnnotations[i].annotationType().equals(annotation.annotationType())) {
-                        currentAnnotations[i] = null;
-                        break;
+    public static Field[] getDeclaredFields(Class<?> clazz) {
+        Field[] fields = FIELD_ARRAY_CACHE.get(clazz);
+        if (fields == null) {
+            fields = new Field[0];
+            while (!clazz.equals(Object.class)) {
+                Field[] currentFields = clazz.getDeclaredFields();
+                for (int i = 0; i < currentFields.length; i++) {
+                    for (Field field : fields) {
+                        if (currentFields[i].getName().equals(field.getName())) {
+                            currentFields[i] = null;
+                            break;
+                        }
                     }
                 }
+                fields = ArrayUtils.addTrimAll(fields, currentFields);
+                clazz = clazz.getSuperclass();
             }
-            annotations = ArrayUtils.addTrimAll(annotations, currentAnnotations);
-            clazz = clazz.getSuperclass();
+            FIELD_ARRAY_CACHE.put(clazz, fields);
+        }
+        return fields;
+    }
+
+    public static Annotation getDeclaredAnnotation(Class<?> clazz, String annotationName) throws ReflexException {
+        Annotation[] annotations = getDeclaredAnnotations(clazz);
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().getSimpleName().equals(annotationName)) {
+                return annotation;
+            }
+        }
+        throw new ReflexException("找不到注解：" + annotationName);
+    }
+
+    public static Annotation[] getDeclaredAnnotations(Class<?> clazz) {
+        Annotation[] annotations = ANNOTATION_ARRAY_CACHE.get(clazz);
+        if (annotations == null) {
+            annotations = new Annotation[0];
+            while (!clazz.equals(Object.class)) {
+                Annotation[] currentAnnotations = clazz.getDeclaredAnnotations();
+                for (int i = 0; i < currentAnnotations.length; i++) {
+                    for (Annotation annotation : annotations) {
+                        if (currentAnnotations[i].annotationType().equals(annotation.annotationType())) {
+                            currentAnnotations[i] = null;
+                            break;
+                        }
+                    }
+                }
+                annotations = ArrayUtils.addTrimAll(annotations, currentAnnotations);
+                clazz = clazz.getSuperclass();
+            }
+            ANNOTATION_ARRAY_CACHE.put(clazz, annotations);
         }
         return annotations;
     }

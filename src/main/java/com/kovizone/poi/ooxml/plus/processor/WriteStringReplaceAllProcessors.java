@@ -1,25 +1,22 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
-import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
-import com.kovizone.poi.ooxml.plus.anno.WriteStringReplace;
+
+import com.kovizone.poi.ooxml.plus.anno.WriteStringReplaceAll;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
-import com.kovizone.poi.ooxml.plus.util.ElUtils;
+import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * StringReplace注解处理器
  *
  * @author KoviChen
  */
-public class WriteStringReplaceAllProcessors implements WriteDataBodyProcessor<WriteStringReplace> {
+public class WriteStringReplaceAllProcessors implements WriteDataBodyProcessor<WriteStringReplaceAll> {
 
     @Override
-    public Object dataBodyProcess(WriteStringReplace writeStringReplace,
+    public Object dataBodyProcess(WriteStringReplaceAll writeStringReplace,
                                   ExcelCommand excelCommand,
-                                  List<?> entityList,
-                                  int entityListIndex,
                                   Field targetField,
                                   Object columnValue) {
         String[] regex = writeStringReplace.regex();
@@ -33,7 +30,7 @@ public class WriteStringReplaceAllProcessors implements WriteDataBodyProcessor<W
         for (int i = 0; i < regex.length; i++) {
             strValue = strValue
                     .replaceAll(regex[i],
-                            ElUtils.parseString(replacement[i], entityList, entityListIndex));
+                            excelCommand.parseString(replacement[i]));
         }
 
         return strValue;

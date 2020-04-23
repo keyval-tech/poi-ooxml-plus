@@ -1,14 +1,10 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
-import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.anno.WriteStringReplace;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
-import com.kovizone.poi.ooxml.plus.util.ElUtils;
+import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * StringReplace注解处理器
@@ -20,12 +16,10 @@ public class WriteStringReplaceProcessors implements WriteDataBodyProcessor<Writ
     @Override
     public Object dataBodyProcess(WriteStringReplace writeStringReplace,
                                   ExcelCommand excelCommand,
-                                  List<?> entityList,
-                                  int entityListIndex,
                                   Field targetField,
                                   Object columnValue) {
 
-        String[] target = writeStringReplace.regex();
+        String[] target = writeStringReplace.target();
         String[] replacement = writeStringReplace.replacement();
 
         if (target.length != replacement.length || target.length == 0) {
@@ -33,13 +27,12 @@ public class WriteStringReplaceProcessors implements WriteDataBodyProcessor<Writ
         }
 
         String strValue = String.valueOf(columnValue);
-        Map<String, Object> paramMap = new HashMap<>(2);
-        paramMap.put("list", entityList);
-        paramMap.put("i", entityListIndex);
         for (int i = 0; i < target.length; i++) {
+            String t = excelCommand.parseString(target[i]);
+            String r = excelCommand.parseString(replacement[i]);
             strValue = strValue
-                    .replace(ElUtils.parseString(target[i], entityList, entityListIndex),
-                            ElUtils.parseString(replacement[i], entityList, entityListIndex));
+                    .replace(t,
+                            r);
         }
         return strValue;
     }

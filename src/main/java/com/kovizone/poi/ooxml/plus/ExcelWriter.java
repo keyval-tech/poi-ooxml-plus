@@ -2,15 +2,11 @@ package com.kovizone.poi.ooxml.plus;
 
 import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
 import com.kovizone.poi.ooxml.plus.anno.WriteHeader;
-import com.kovizone.poi.ooxml.plus.api.anno.Processor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteHeaderProcessor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataTitleProcessor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteSheetInitProcessor;
 import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
+import com.kovizone.poi.ooxml.plus.processor.ProcessorFactory;
 import com.kovizone.poi.ooxml.plus.style.ExcelDefaultStyle;
 import com.kovizone.poi.ooxml.plus.util.ReflexUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -171,10 +167,8 @@ public class ExcelWriter {
         // 主要属性集
         Class<?> clazz = entityList.get(0).getClass();
         List<Field> columnFieldList = columnFieldList(clazz);
-        ExcelCommand excelCommand = new ExcelCommand(workbook, columnFieldList.size() - 1, vars, excelStyle);
-
-        // 数据遍历索引
-        int dateIndex = 0;
+        int cellSize = columnFieldList.size();
+        ExcelCommand excelCommand = new ExcelCommand(workbook, cellSize, vars, excelStyle, entityList);
 
         sheetCycle:
         while (true) {
@@ -182,9 +176,9 @@ public class ExcelWriter {
 
             Annotation[] clazzAnnotations = ReflexUtils.getDeclaredAnnotations(clazz);
             for (Annotation clazzAnnotation : clazzAnnotations) {
-                sheetInitProcessor(clazzAnnotation, excelCommand, clazz, entityList);
+                ProcessorFactory.sheetInitProcessor(clazzAnnotation, excelCommand, clazz);
                 // headerProcessor子方法里创建行
-                headerProcessor(clazzAnnotation, excelCommand, clazz, entityList);
+                ProcessorFactory.headerProcessor(clazzAnnotation, excelCommand, clazz);
             }
             // 数据标题
             excelCommand.createRow();
@@ -193,16 +187,16 @@ public class ExcelWriter {
                 excelCommand.createCell();
 
                 for (Annotation clazzAnnotation : clazzAnnotations) {
-                    dateTitleProcessor(clazzAnnotation, excelCommand, entityList, field);
+                    ProcessorFactory.dateTitleProcessor(clazzAnnotation, excelCommand, field);
                 }
                 for (Annotation fieldAnnotation : fieldAnnotations) {
-                    dateTitleProcessor(fieldAnnotation, excelCommand, entityList, field);
+                    ProcessorFactory.dateTitleProcessor(fieldAnnotation, excelCommand, field);
                 }
             }
 
             // 数据集遍历
-            for (; dateIndex < entityList.size(); dateIndex++) {
-                Object entity = entityList.get(dateIndex);
+            for (; excelCommand.currentEntityListIndex() < entityList.size(); excelCommand.nextEntityListIndex()) {
+                Object entity = entityList.get(excelCommand.currentEntityListIndex());
 
                 if (excelCommand.currentRowIndex() >= maxLength) {
                     // 达到最大行数，新增工作簿
@@ -216,16 +210,15 @@ public class ExcelWriter {
                     try {
                         value = ReflexUtils.getValue(entity, field);
                     } catch (ReflexException e) {
-                        e.printStackTrace();
                         throw new ExcelWriteException("读取属性值失败;" + e.getMessage());
                     }
                     Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
                     excelCommand.createCell();
                     for (Annotation clazzAnnotation : clazzAnnotations) {
-                        value = dateBodyProcessor(clazzAnnotation, excelCommand, dateIndex, entityList, field, value);
+                        value = ProcessorFactory.dateBodyProcessor(clazzAnnotation, excelCommand, field, value);
                     }
                     for (Annotation fieldAnnotation : fieldAnnotations) {
-                        value = dateBodyProcessor(fieldAnnotation, excelCommand, dateIndex, entityList, field, value);
+                        value = ProcessorFactory.dateBodyProcessor(fieldAnnotation, excelCommand, field, value);
                     }
                     if (value != null) {
                         excelCommand.setCellValue(value);
@@ -235,130 +228,6 @@ public class ExcelWriter {
             excelCommand.lateRender();
             break;
         }
-    }
-
-    private <P> P getProcessor(Class<? extends Annotation> annotationClass, Class<P> processorClass) throws ExcelWriteException {
-        // 判断注解是否存在处理器
-        if (annotationClass.isAnnotationPresent(Processor.class)) {
-            Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
-            Class<?> processor = processorAnnotation.value();
-            if (processorClass.isAssignableFrom(processor)) {
-                try {
-                    return (P) ReflexUtils.newInstance(processor);
-                } catch (ReflexException e) {
-                    e.printStackTrace();
-                    throw new ExcelWriteException("构造处理器失败;" + e.getMessage());
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 解析表头处理器
-     *
-     * @param annotation   注解
-     * @param excelCommand 基础命令
-     * @param entityList   实体集
-     * @throws ExcelWriteException 异常
-     */
-    @SuppressWarnings("unchecked")
-    private void sheetInitProcessor(Annotation annotation,
-                                    ExcelCommand excelCommand,
-                                    Class<?> clazz,
-                                    List<?> entityList) throws ExcelWriteException {
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteSheetInitProcessor writeSheetInitProcessor = getProcessor(annotationClass, WriteSheetInitProcessor.class);
-        if (writeSheetInitProcessor != null) {
-            Annotation annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
-            writeSheetInitProcessor.sheetInitProcess(annotationEntity,
-                    excelCommand,
-                    entityList,
-                    clazz);
-        }
-    }
-
-    /**
-     * 解析表头处理器
-     *
-     * @param annotation   注解
-     * @param excelCommand 基础命令
-     * @param entityList   实体集
-     * @throws ExcelWriteException 异常
-     */
-    private void headerProcessor(Annotation annotation,
-                                 ExcelCommand excelCommand,
-                                 Class<?> clazz,
-                                 List<?> entityList) throws ExcelWriteException {
-
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteHeaderProcessor writeHeaderProcessor = getProcessor(annotationClass, WriteHeaderProcessor.class);
-        if (writeHeaderProcessor != null) {
-            excelCommand.createRow();
-            Object annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
-            writeHeaderProcessor.headerProcess((Annotation) annotationEntity,
-                    excelCommand,
-                    entityList,
-                    clazz);
-        }
-    }
-
-    /**
-     * 解析数据标题处理器
-     *
-     * @param annotation   注解
-     * @param excelCommand 基础命令
-     * @param entityList   实体集
-     * @param targetField  注解目标属性
-     * @throws ExcelWriteException 异常
-     */
-    private void dateTitleProcessor(Annotation annotation,
-                                    ExcelCommand excelCommand,
-                                    List<?> entityList,
-                                    Field targetField) throws ExcelWriteException {
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteDataTitleProcessor writeDataTitleProcessor = getProcessor(annotationClass, WriteDataTitleProcessor.class);
-        if (writeDataTitleProcessor != null) {
-            Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
-            writeDataTitleProcessor.dataTitleProcess((Annotation) annotationEntity,
-                    excelCommand,
-                    entityList,
-                    targetField);
-        }
-    }
-
-    /**
-     * 解析数据处理器
-     *
-     * @param annotation   注解
-     * @param excelCommand 基础命令
-     * @param entityList   实体集
-     * @param targetField  注解目标属性
-     * @param columnValue  注解目标属性值
-     * @return 注解处理器更新后的值
-     * @throws ExcelWriteException 异常
-     */
-    private Object dateBodyProcessor(Annotation annotation,
-                                     ExcelCommand excelCommand,
-                                     int entityListIndex,
-                                     List<?> entityList,
-                                     Field targetField,
-                                     Object columnValue) throws ExcelWriteException {
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteDataBodyProcessor writeDataBodyProcessor = getProcessor(annotationClass, WriteDataBodyProcessor.class);
-        if (writeDataBodyProcessor != null) {
-            Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
-            if (annotationEntity == null) {
-                annotationEntity = entityList.get(entityListIndex).getClass().getDeclaredAnnotation(annotationClass);
-            }
-            columnValue = writeDataBodyProcessor.dataBodyProcess((Annotation) annotationEntity,
-                    excelCommand,
-                    entityList,
-                    entityListIndex,
-                    targetField,
-                    columnValue);
-        }
-        return columnValue;
     }
 
     /**
@@ -373,7 +242,7 @@ public class ExcelWriter {
      * @param clazz 类
      * @return 获取有@PoiColumn注解的属性集合
      */
-    private List<Field> columnFieldList(Class<?> clazz) throws ExcelWriteException {
+    private List<Field> columnFieldList(Class<?> clazz) {
         // 静态缓存
         List<Field> poiColumnFieldList = COLUMN_FIELD_LIST_CACHE.get(clazz);
         if (poiColumnFieldList != null) {
