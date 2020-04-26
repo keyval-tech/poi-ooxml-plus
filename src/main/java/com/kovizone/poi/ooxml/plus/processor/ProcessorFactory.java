@@ -52,6 +52,7 @@ public class ProcessorFactory {
      * @param excelCommand 基础命令
      * @throws ExcelWriteException 异常
      */
+    @SuppressWarnings("unchecked")
     public static void headerProcessor(Annotation annotation,
                                        ExcelCommand excelCommand,
                                        Class<?> clazz) throws ExcelWriteException {
@@ -75,6 +76,7 @@ public class ProcessorFactory {
      * @param targetField  注解目标属性
      * @throws ExcelWriteException 异常
      */
+    @SuppressWarnings("unchecked")
     public static void dateTitleProcessor(Annotation annotation,
                                           ExcelCommand excelCommand,
                                           Field targetField) throws ExcelWriteException {
@@ -98,6 +100,7 @@ public class ProcessorFactory {
      * @return 注解处理器更新后的值
      * @throws ExcelWriteException 异常
      */
+    @SuppressWarnings("unchecked")
     public static Object dateBodyProcessor(Annotation annotation,
                                            ExcelCommand excelCommand,
                                            Field targetField,
@@ -123,6 +126,7 @@ public class ProcessorFactory {
 
     private final static String NOT_FOUND_PROCESSOR_PLACEHOLDER = "not found processor";
 
+    @SuppressWarnings("unchecked")
     private static <P> P getProcessor(Class<? extends Annotation> annotationClass, Class<P> processorClass) throws ExcelWriteException {
         if (NOT_PROCESSOR_CACHE.contains(annotationClass)) {
             return null;

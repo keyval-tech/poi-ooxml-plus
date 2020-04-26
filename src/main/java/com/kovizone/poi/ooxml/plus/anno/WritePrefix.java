@@ -19,8 +19,8 @@ import java.lang.annotation.Target;
 public @interface WritePrefix {
 
     /**
-     * 输出值拼接前缀<BR/>
-     * 使用#[FieldName]指定属性的值<BR/>
+     * 输出值拼接前缀，
+     * 使用#[FieldName]指定属性的值，
      *
      * @return 拼接前缀集
      */

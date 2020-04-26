@@ -1,7 +1,6 @@
 package com.kovizone.poi.ooxml.plus.util;
 
 import com.kovizone.poi.ooxml.plus.exception.ExpressionParseException;
-import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -128,6 +127,7 @@ public class ElParser {
      * @return 解析结果
      * @throws ExpressionParseException 异常
      */
+    @SuppressWarnings("unchecked")
     public <T> T parse(String expressionString, int index, Class<T> clazz) throws ExpressionParseException {
         final String plusKey = "+";
         final String splicerMethod = ".concat";

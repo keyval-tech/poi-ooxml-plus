@@ -19,7 +19,7 @@ public class WriteColumnConfigProcessors implements WriteDataTitleProcessor<Writ
     public void dataTitleProcess(WriteColumnConfig writeColumnConfig,
                                  ExcelCommand excelCommand,
                                  Field targetField) {
-        String dateTitle = writeColumnConfig.title();
+        String dateTitle = writeColumnConfig.value();
         if (!StringUtils.isEmpty(dateTitle)) {
             excelCommand.setCellValue(dateTitle);
         }

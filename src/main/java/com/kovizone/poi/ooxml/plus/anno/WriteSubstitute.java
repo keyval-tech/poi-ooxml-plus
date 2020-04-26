@@ -19,16 +19,16 @@ import java.lang.annotation.Target;
 public @interface WriteSubstitute {
 
     /**
-     * 替补条件<BR/>
-     * 使用#[FieldName]指定属性的值<BR/>
+     * 替补条件，
+     * 使用#[FieldName]指定属性的值，
      *
      * @return 替补条件
      */
     String criteria();
 
     /**
-     * 替补值<BR/>
-     * 使用#[FieldName]指定属性的值<BR/>
+     * 替补值，
+     * 使用#[FieldName]指定属性的值，
      * 否则为常量
      *
      * @return 替补属性名

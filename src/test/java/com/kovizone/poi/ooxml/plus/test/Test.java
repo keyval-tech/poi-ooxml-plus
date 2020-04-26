@@ -36,32 +36,32 @@ public class Test {
     @WriteSubheader("日期：#datetime 作者：#author")
     public static class TestEntity {
 
-        @WriteColumnConfig(title = "测试1", width = 7 * 256)
+        @WriteColumnConfig(value = "测试1", width = 7 * 256)
         String test;
 
-        @WriteColumnConfig(sort = 20, title = "测试2")
+        @WriteColumnConfig(sort = 20, value = "测试2")
         String test2;
 
         @WriteStringReplace(target = {"'00'", "'01'", "'02'"}, replacement = {"'零零'", "'零一'", "'零二' + #list[i].test2"})
-        @WriteColumnConfig(sort = 30, title = "测试3")
+        @WriteColumnConfig(sort = 30, value = "测试3")
         String test3;
 
         @WriteSubstitute(criteria = "#list[#i].test4 == null", value = "空值")
-        @WriteColumnConfig(sort = 40, title = "测试4")
+        @WriteColumnConfig(sort = 40, value = "测试4")
         String test4;
 
-        @WriteColumnConfig(sort = 50, title = "测试5")
+        @WriteColumnConfig(sort = 50, value = "测试5")
         Integer test5;
 
         @WriteDateFormat("yyyy-MM-dd HH:mm:ss SSS")
-        @WriteColumnConfig(sort = 60, title = "测试6")
+        @WriteColumnConfig(sort = 60, value = "测试6")
         Date test6;
 
         @WriteSubstitute(criteria = "#list[#i].test7 == null", value = "'空值' + #test")
-        @WriteColumnConfig(sort = 70, title = "测试7")
+        @WriteColumnConfig(sort = 70, value = "测试7")
         String test7;
 
-        @WriteColumnConfig(sort = 80, title = "测试8")
+        @WriteColumnConfig(sort = 80, value = "测试8")
         @WriteCriteria("#this.test8 == null ? #this.test2 : #this.test8")
         String test8;
 

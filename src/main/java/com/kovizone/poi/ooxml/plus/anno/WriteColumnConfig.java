@@ -18,6 +18,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WriteColumnConfig {
 
+    /**
+     * 指定显示列名
+     *
+     * @return 列名
+     */
+    String value();
 
     /**
      * 排序，由小到大
@@ -27,14 +33,7 @@ public @interface WriteColumnConfig {
     int sort() default 0;
 
     /**
-     * 指定显示列名
-     *
-     * @return 列名
-     */
-    String title();
-
-    /**
-     * 列宽设置<BR/>
+     * 列宽设置，
      *
      * @return 列宽
      */

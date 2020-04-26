@@ -51,7 +51,7 @@ public class ExcelWriter {
     private ExcelStyle excelStyle;
 
     /**
-     * 实体类构造器<BR/>
+     * 实体类构造器，
      * 注入默认样式
      */
     public ExcelWriter() {
@@ -60,7 +60,7 @@ public class ExcelWriter {
     }
 
     /**
-     * 实体类构造器<BR/>
+     * 实体类构造器，
      * 注入自定义样式
      */
     public ExcelWriter(ExcelStyle excelStyle) {
@@ -236,7 +236,7 @@ public class ExcelWriter {
     private static final Map<Class<?>, List<Field>> COLUMN_FIELD_LIST_CACHE = new HashMap<>(16);
 
     /**
-     * 获取有@PoiColumn注解的属性集合<BR/>
+     * 获取有@PoiColumn注解的属性集合，
      * 解析PoiColumn的sort，进行排序
      *
      * @param clazz 类

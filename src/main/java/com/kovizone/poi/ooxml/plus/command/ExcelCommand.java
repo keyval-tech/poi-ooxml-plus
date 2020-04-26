@@ -186,7 +186,7 @@ public class ExcelCommand {
     }
 
     /**
-     * 创建行<BR/>
+     * 创建行，
      * 注入样式
      *
      * @return 行
@@ -219,7 +219,7 @@ public class ExcelCommand {
     }
 
     /**
-     * 创建单元格<BR/>
+     * 创建单元格，
      * 注入样式
      *
      * @return 单元格
@@ -242,8 +242,8 @@ public class ExcelCommand {
     private Short defaultRowHeight = null;
 
     /**
-     * 设置列默认列宽<BR/>
-     * 创建行后默认宽度会清除<BR/>
+     * 设置列默认列宽，
+     * 创建行后默认宽度会清除，
      *
      * @param width 宽度
      */
@@ -252,8 +252,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 设置列默认行高<BR/>
-     * 创建工作簿后默认高度会清除<BR/>
+     * 设置列默认行高，
+     * 创建工作簿后默认高度会清除，
      *
      * @param height 高度
      */
@@ -289,8 +289,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 设置当前列宽度<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 设置当前列宽度，
+     * 在新建Sheet或执行指令时渲染，
      *
      * @param width 宽度
      */
@@ -302,8 +302,8 @@ public class ExcelCommand {
 
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      */
     public void range() {
         range(null,
@@ -314,8 +314,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      *
      * @param cellRangeAddress 合并对象
      */
@@ -328,8 +328,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      */
     public void range(BorderStyle border) {
         range(null,
@@ -340,8 +340,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      */
     public void range(BorderStyle borderTopAndBottom, BorderStyle borderLeftAndRight) {
         range(null,
@@ -352,8 +352,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      */
     public void range(BorderStyle borderTop, BorderStyle borderRight, BorderStyle borderBottom, BorderStyle borderLeft) {
         range(null,
@@ -364,8 +364,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      */
     public void range(CellRangeAddress region, BorderStyle border) {
         range(region,
@@ -376,8 +376,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      */
     public void range(CellRangeAddress region, BorderStyle borderTopAndBottom, BorderStyle borderLeftAndRight) {
         range(region,
@@ -388,8 +388,8 @@ public class ExcelCommand {
     }
 
     /**
-     * 合并若干行<BR/>
-     * 在新建Sheet或执行指令时渲染<BR/>
+     * 合并若干行，
+     * 在新建Sheet或执行指令时渲染，
      */
     public void range(CellRangeAddress region, BorderStyle borderTop, BorderStyle borderRight, BorderStyle borderBottom, BorderStyle borderLeft) {
         if (region == null) {

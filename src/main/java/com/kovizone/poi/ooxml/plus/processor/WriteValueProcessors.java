@@ -14,10 +14,20 @@ import java.lang.reflect.Field;
 public class WriteValueProcessors implements WriteDataBodyProcessor<WriteValue> {
 
     @Override
-    public Object dataBodyProcess(WriteValue writeCriteria,
+    public Object dataBodyProcess(WriteValue writeValue,
                                   ExcelCommand excelCommand,
                                   Field targetField,
                                   Object columnValue) {
-        return excelCommand.parseString(writeCriteria.value());
+        String[] values = writeValue.value();
+        for (String value : values) {
+            try {
+                columnValue = excelCommand.parseString(value);
+            } catch (Exception e) {
+                if (!excelCommand.parseBoolean(value)) {
+                    columnValue = null;
+                }
+            }
+        }
+        return columnValue;
     }
 }
