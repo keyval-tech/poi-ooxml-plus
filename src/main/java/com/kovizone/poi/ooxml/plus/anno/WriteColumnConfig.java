@@ -9,7 +9,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 指定为Excel列字段
+ * <p>指定为Excel列字段</p>
+ *
+ * <p>注解处理器{@link WriteColumnConfigProcessors}</p>
  *
  * @author KoviChen
  */

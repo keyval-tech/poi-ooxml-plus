@@ -29,13 +29,11 @@ public class ElParser {
     /**
      * 转义Map
      */
-    private static final Map<String, String> ESCAPE_MAP = new HashMap<>();
-
-    static {
-        ESCAPE_MAP.put("#this", "#list[#i]");
-        ESCAPE_MAP.put("#list[i]", "#list[#i]");
-        ESCAPE_MAP.put("#list.get(i)", "#list.get(#i)");
-    }
+    private static final Map<String, String> ESCAPE_MAP = new HashMap<String, String>() {{
+        put("#this", "#list[#i]");
+        put("#list[i]", "#list[#i]");
+        put("#list.get(i)", "#list.get(#i)");
+    }};
 
     /**
      * 解析表达式转布偶值
@@ -133,19 +131,25 @@ public class ElParser {
         final String splicerMethod = ".concat";
         final String poundKey = "#";
         try {
+            Expression expression = expressionParser.parseExpression(escape(expressionString));
+            return expression.getValue(evaluationContext(index), clazz);
+        } catch (Exception e) {
             if (clazz.equals(String.class)
                     && !expressionString.contains(plusKey)
                     && !expressionString.contains(splicerMethod)
                     && !expressionString.contains(poundKey)) {
                 return (T) expressionString;
             } else {
-                Expression expression = expressionParser.parseExpression(escape(expressionString));
-                return expression.getValue(evaluationContext(index), clazz);
+                throw new ExpressionParseException("解析EL表达式失败：" + expressionString + ";" + e.getMessage());
             }
-        } catch (
-                Exception e) {
-            throw new ExpressionParseException("解析EL表达式失败：" + expressionString + ";" + e.getMessage());
         }
+    }
+
+
+    public static void main(String[] args) {
+
+        Expression expression = expressionParser.parseExpression("'00'");
+        System.out.println(expression.getValue(String.class));
     }
 
 }

@@ -1,22 +1,28 @@
 package com.kovizone.poi.ooxml.plus.util;
 
-import org.apache.poi.ss.formula.functions.T;
-
 import java.util.Arrays;
 
 /**
- * 数据工具
+ * <p>数组工具</p>
  *
  * @author KoviChen
+ * @version 1.0
  */
 public class ArrayUtils {
 
     /**
-     * 数组叠加，去除空项
+     * <p>数组叠加，去除空项</p>
+     * <p><pre class="code">
+     *  String[] strArray1 = new String[]{"value1", null, "value2"};
+     *  String[] strArray2 = new String[]{"value3", null, "value4"};
+     *
+     *  // {"value1", "value2", "value3", "value4"}
+     *  String[] strArray3 = ArrayUtils.addTrimAll(strArray1, strArray2);
+     * </pre></p>
      *
      * @param original 原数组
      * @param array    叠加数组
-     * @param <T>      泛型
+     * @param <T>      泛型g
      * @return 新数组
      */
     public static <T> T[] addTrimAll(T[] original, T[] array) {
@@ -24,7 +30,15 @@ public class ArrayUtils {
     }
 
     /**
-     * 数组叠加
+     * <p>数组叠加</p>
+     * <p>
+     * <p><pre class="code">
+     *  String[] strArray1 = new String[]{"value1", null, "value2"};
+     *  String[] strArray2 = new String[]{"value3", null, "value4"};
+     *
+     *  // {"value1", null, "value2", "value3", null, "value4"}
+     *  String[] strArray3 = ArrayUtils.addAll(strArray1, strArray2);
+     * </pre></p>
      *
      * @param original 原数组
      * @param array    叠加数组
@@ -48,6 +62,13 @@ public class ArrayUtils {
 
     /**
      * 去掉数组中的空项
+     * <p>
+     * <p><pre class="code">
+     *  String[] strArray1 = new String[]{"value1", null, "value2"};
+     *
+     *  // {"value1", "value2"}
+     *  String[] strArray2 = ArrayUtils.trim(strArray1);
+     * </pre></p>
      *
      * @param original 数组
      * @param <T>      泛型

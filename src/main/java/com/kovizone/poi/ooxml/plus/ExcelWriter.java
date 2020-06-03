@@ -24,6 +24,7 @@ import java.util.*;
  * POI构造者
  *
  * @author KoviChen
+ * @author KoviChen2
  */
 @Addressing
 @Resource
@@ -31,12 +32,12 @@ import java.util.*;
 public class ExcelWriter {
 
     /**
-     * xlsz最大行数
+     * xlsz最大行数，默认{@value}
      */
     public static final int XLS_MAX_ROW_SIZE = 65536;
 
     /**
-     * xlsx最大行数
+     * xlsx最大行数，默认{@value}
      */
     public static final int XLSX_MAX_ROW_SIZE = 1048576;
 
@@ -61,7 +62,8 @@ public class ExcelWriter {
 
     /**
      * 实体类构造器，
-     * 注入自定义样式
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
      */
     public ExcelWriter(ExcelStyle excelStyle) {
         super();

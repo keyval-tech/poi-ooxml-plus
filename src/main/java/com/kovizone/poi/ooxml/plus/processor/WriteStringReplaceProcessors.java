@@ -30,9 +30,7 @@ public class WriteStringReplaceProcessors implements WriteDataBodyProcessor<Writ
         for (int i = 0; i < target.length; i++) {
             String t = excelCommand.parseString(target[i]);
             String r = excelCommand.parseString(replacement[i]);
-            strValue = strValue
-                    .replace(t,
-                            r);
+            strValue = strValue.replace(t, r);
         }
         return strValue;
     }

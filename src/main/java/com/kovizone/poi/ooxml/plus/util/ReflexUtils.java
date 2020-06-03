@@ -2,7 +2,6 @@ package com.kovizone.poi.ooxml.plus.util;
 
 
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
-import org.apache.poi.ss.formula.functions.T;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -13,15 +12,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 属性工具类
+ * <p>反射工具类</p>
  *
  * @author KoviChen
+ * @version 1.0
  */
 public class ReflexUtils {
 
+    /**
+     * 属性数组缓存
+     */
     private static final Map<Class<?>, Field[]> FIELD_ARRAY_CACHE = new HashMap<>();
+
+    /**
+     * 主机而数组
+     */
     private static final Map<Class<?>, Annotation[]> ANNOTATION_ARRAY_CACHE = new HashMap<>();
 
+    /**
+     * <p>获取属性</p>
+     *
+     * <p>基于{@code ReflexUtils#getFields}实现</p>
+     *
+     * <p>将会读取{@code clazz}的本类及其所有父类的属性，找到并返回属性名为{@code fieldName}的属性</p>
+     *
+     * @param clazz     类
+     * @param fieldName 属性名
+     * @return 属性
+     * @throws ReflexException 反射异常
+     * @see ReflexUtils#getDeclaredFields
+     */
     public static Field getDeclaredField(Class<?> clazz, String fieldName) throws ReflexException {
         Field[] fields = getDeclaredFields(clazz);
         for (Field field : fields) {
@@ -32,6 +52,18 @@ public class ReflexUtils {
         throw new ReflexException("找不到属性：" + fieldName);
     }
 
+    /**
+     * <p>获取属性</p>
+     *
+     * <p>将会读取{@code clazz}的本类及其所有父类的属性，返回所有属性集合</p>
+     *
+     * <p>若子类与父类有相同的属性名的{@code Field}，将会舍弃父类的{@code Field}</p>
+     *
+     * <p>结果将写入缓存{@code FIELD_ARRAY_CACHE}，第二次开始获取时从缓存中获取</p>
+     *
+     * @param clazz 类
+     * @return 属性
+     */
     public static Field[] getDeclaredFields(Class<?> clazz) {
         Field[] fields = FIELD_ARRAY_CACHE.get(clazz);
         if (fields == null) {
@@ -87,11 +119,7 @@ public class ReflexUtils {
     }
 
     public static Object getValue(Object object, String fieldName) throws ReflexException {
-        try {
-            return getValue(object, object.getClass().getDeclaredField(fieldName));
-        } catch (NoSuchFieldException e) {
-            throw new ReflexException("找不到属性：" + fieldName);
-        }
+        return getValue(object, ReflexUtils.getDeclaredField(object.getClass(), fieldName));
     }
 
     public static Object getValue(Object object, Field field) throws ReflexException {
@@ -111,12 +139,7 @@ public class ReflexUtils {
     }
 
     public static void setValue(Object object, String fieldName, Object value) throws ReflexException {
-        try {
-            setValue(object, object.getClass().getDeclaredField(fieldName), value);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-            throw new ReflexException("找不到属性：" + fieldName);
-        }
+        setValue(object, ReflexUtils.getDeclaredField(object.getClass(), fieldName), value);
     }
 
     public static void setValue(Object object, Field field, Object value) throws ReflexException {

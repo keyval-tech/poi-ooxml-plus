@@ -9,7 +9,7 @@ import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import java.lang.reflect.Field;
 
 /**
- * ColumnConfig注解处理器
+ * <p>{@link WriteColumnConfig}注解的处理器</p>
  *
  * @author KoviChen
  */

@@ -28,6 +28,7 @@ public class Test {
             put("#datetime", new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
             put("#author", "KoviChen");
         }});
+
         workbook.write(new FileOutputStream(new File("D:/test/" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".xls")));
     }
 
@@ -39,7 +40,7 @@ public class Test {
         @WriteColumnConfig(value = "测试1", width = 7 * 256)
         String test;
 
-        @WriteColumnConfig(sort = 20, value = "测试2")
+        @WriteColumnConfig(sort = 20, value = "测试2", width = 3000)
         String test2;
 
         @WriteStringReplace(target = {"'00'", "'01'", "'02'"}, replacement = {"'零零'", "'零一'", "'零二' + #list[i].test2"})
