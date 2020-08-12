@@ -185,7 +185,6 @@ public class ExcelCommand {
         if (defaultRowHeight != null) {
             setRowHeight(defaultRowHeight);
         }
-        setDefaultColumnWidth(null);
         return row;
     }
 
@@ -217,9 +216,6 @@ public class ExcelCommand {
     public Cell createCell() {
         Cell cell = row.createCell(nextCellIndex++);
         this.cell = cell;
-        if (defaultColumnWidth != null) {
-            setCellWidth(defaultColumnWidth);
-        }
         return cell;
     }
 
@@ -284,6 +280,7 @@ public class ExcelCommand {
             lateRenderCellWidth = new HashMap<>(16);
 
             lateRenderRowHeight.forEach((key, value) -> {
+                System.out.println("set height: " + value);
                 sheet.getRow(key).setHeight(value);
             });
             lateRenderRowHeight = new HashMap<>(16);
@@ -298,7 +295,13 @@ public class ExcelCommand {
      * @param height 高度
      */
     public void setRowHeight(short height) {
-        lateRenderRowHeight.put(currentRowIndex(), height);
+        int index = currentRowIndex();
+        if (height == -1) {
+            height = defaultRowHeight;
+        }
+        if (height > 0 && lateRenderRowHeight.get(index) == null) {
+            lateRenderRowHeight.put(index, height);
+        }
     }
 
     /**
@@ -308,8 +311,12 @@ public class ExcelCommand {
      * @param width 宽度
      */
     public void setCellWidth(int width) {
-        if (width > 0) {
-            lateRenderCellWidth.put(currentCowIndex(), width);
+        int index = currentCowIndex();
+        if (width == -1) {
+            width = defaultColumnWidth;
+        }
+        if (width > 0 && lateRenderCellWidth.get(index) == null) {
+            lateRenderCellWidth.put(index, width);
         }
     }
 

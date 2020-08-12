@@ -32,21 +32,21 @@ public class Test {
         workbook.write(new FileOutputStream(new File("D:/test/" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".xls")));
     }
 
-    public static class TestEntity2 extends TestEntity{
+    public static class TestEntity2 extends TestEntity {
 
         public TestEntity2(String test, String test2, String test3, String test4, Integer test5, Date test6, String test7, String test8) {
             super(test, test2, test3, test4, test5, test6, test7, test8);
         }
     }
 
-    @WriteInit
+    @WriteInit(defaultColumnWidth = 5000)
     @WriteHeader("这是标题")
     public static class TestEntity {
 
         @WriteColumnConfig(value = "测试1", width = 7 * 256)
         String test;
 
-        @WriteColumnConfig(sort = 20, value = "测试2", width = 3000)
+        @WriteColumnConfig(sort = 20, value = "测试2", width = 10000)
         String test2;
 
         @WriteStringReplace(target = {"'00'", "'01'", "'02'"}, replacement = {"'零零'", "'零一'", "'零二' + #list[i].test2"})
