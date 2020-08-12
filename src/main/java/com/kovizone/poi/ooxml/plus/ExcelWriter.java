@@ -1,21 +1,18 @@
 package com.kovizone.poi.ooxml.plus;
 
 import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
-import com.kovizone.poi.ooxml.plus.anno.WriteHeader;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
 import com.kovizone.poi.ooxml.plus.processor.ProcessorFactory;
-import com.kovizone.poi.ooxml.plus.style.ExcelDefaultStyle;
+import com.kovizone.poi.ooxml.plus.style.DefaultExcelStyle;
 import com.kovizone.poi.ooxml.plus.util.ReflexUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import javax.annotation.Resource;
-import javax.xml.ws.soap.Addressing;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
@@ -26,9 +23,6 @@ import java.util.*;
  * @author KoviChen
  * @author KoviChen2
  */
-@Addressing
-@Resource
-@WriteHeader
 public class ExcelWriter {
 
     /**
@@ -57,13 +51,15 @@ public class ExcelWriter {
      */
     public ExcelWriter() {
         super();
-        this.excelStyle = new ExcelDefaultStyle();
+        this.excelStyle = new DefaultExcelStyle();
     }
 
     /**
      * 实体类构造器，
      * 注入自定义样式，
      * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param excelStyle 样式
      */
     public ExcelWriter(ExcelStyle excelStyle) {
         super();
@@ -74,6 +70,7 @@ public class ExcelWriter {
      * 构造SXSSF工作表
      *
      * @param entityList 实体对象集
+     * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
     public Workbook writeSXSSF(List<?> entityList) throws ExcelWriteException {
@@ -85,6 +82,7 @@ public class ExcelWriter {
      *
      * @param entityList           实体对象集
      * @param headerTextReplaceMap 表头替换文本
+     * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
     public Workbook writeSXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
@@ -97,6 +95,7 @@ public class ExcelWriter {
      * 构造XSSF工作表
      *
      * @param entityList 实体对象集
+     * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
     public Workbook writeXSSF(List<?> entityList) throws ExcelWriteException {
@@ -108,6 +107,7 @@ public class ExcelWriter {
      *
      * @param entityList           实体对象集
      * @param headerTextReplaceMap 表头替换文本
+     * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
     public Workbook writeXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
@@ -120,6 +120,7 @@ public class ExcelWriter {
      * 构造HSSF工作表
      *
      * @param entityList 实体对象集
+     * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
     public Workbook writeHSSF(List<?> entityList) throws ExcelWriteException {
@@ -131,6 +132,7 @@ public class ExcelWriter {
      *
      * @param entityList           实体对象集
      * @param headerTextReplaceMap 表头替换文本
+     * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
     public Workbook writeHSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
@@ -182,6 +184,7 @@ public class ExcelWriter {
                 // headerProcessor子方法里创建行
                 ProcessorFactory.headerProcessor(clazzAnnotation, excelCommand, clazz);
             }
+
             // 数据标题
             excelCommand.createRow();
             for (Field field : columnFieldList) {
@@ -214,11 +217,11 @@ public class ExcelWriter {
                     } catch (ReflexException e) {
                         throw new ExcelWriteException("读取属性值失败;" + e.getMessage());
                     }
-                    Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
                     excelCommand.createCell();
                     for (Annotation clazzAnnotation : clazzAnnotations) {
                         value = ProcessorFactory.dateBodyProcessor(clazzAnnotation, excelCommand, field, value);
                     }
+                    Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
                     for (Annotation fieldAnnotation : fieldAnnotations) {
                         value = ProcessorFactory.dateBodyProcessor(fieldAnnotation, excelCommand, field, value);
                     }

@@ -15,9 +15,9 @@ public interface WriteDataTitleProcessor<A extends Annotation> {
     /**
      * 处理
      *
-     * @param annotation      注解类实体
+     * @param annotation   注解类实体
      * @param excelCommand 基础命令
-     * @param targetField     注解目标属性
+     * @param targetField  注解目标属性
      */
     void dataTitleProcess(A annotation,
                           ExcelCommand excelCommand,

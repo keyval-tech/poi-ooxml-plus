@@ -1,7 +1,6 @@
 package com.kovizone.poi.ooxml.plus.anno;
 
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
-import com.kovizone.poi.ooxml.plus.processor.WriteCriteriaProcessors;
 import com.kovizone.poi.ooxml.plus.processor.WriteValueProcessors;
 
 import java.lang.annotation.ElementType;
@@ -22,6 +21,8 @@ public @interface WriteValue {
     /**
      * 显示条件表达式，
      * 使用#FieldName指定属性的值，
+     *
+     * @return 显示条件表达式
      */
     String[] value();
 

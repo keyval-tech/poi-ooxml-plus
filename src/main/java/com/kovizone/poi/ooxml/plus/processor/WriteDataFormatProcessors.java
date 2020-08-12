@@ -22,13 +22,13 @@ public class WriteDataFormatProcessors implements WriteDataBodyProcessor<WriteDa
                                   ExcelCommand excelCommand,
                                   Field targetField,
                                   Object columnValue) {
-        if (!(columnValue instanceof Date)) {
-            return columnValue;
+        if (columnValue instanceof Date) {
+            Date targetFieldDateValue = (Date) columnValue;
+            if (StringUtils.isEmpty(writeDateFormat.value())) {
+                return targetFieldDateValue.toString();
+            }
+            return new SimpleDateFormat(writeDateFormat.value()).format(targetFieldDateValue);
         }
-        Date targetFieldDateValue = (Date) columnValue;
-        if (StringUtils.isEmpty(writeDateFormat.value())) {
-            return targetFieldDateValue.toString();
-        }
-        return new SimpleDateFormat(writeDateFormat.value()).format(targetFieldDateValue);
+        return columnValue;
     }
 }

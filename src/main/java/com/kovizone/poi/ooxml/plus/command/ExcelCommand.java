@@ -29,7 +29,6 @@ public class ExcelCommand {
         this.nextRowIndex = 0;
         this.lateRenderCellWidth = new HashMap<>(16);
         this.lateRenderRowHeight = new HashMap<>(16);
-        this.lateRenderAutoCellValueLength = new HashMap<>(16);
         this.styleMap = excelStyle.styleMap(new ExcelStyleCommand(workbook));
         this.entityList = entityList;
         this.elParser = new ElParser(entityList);
@@ -164,6 +163,11 @@ public class ExcelCommand {
                 String.valueOf(currentSheetIndex() + 1)));
     }
 
+    /**
+     * 获取Sheet
+     *
+     * @return sheet
+     */
     protected Sheet getSheet() {
         return sheet;
     }
@@ -189,6 +193,7 @@ public class ExcelCommand {
      * 创建行，
      * 注入样式
      *
+     * @param styleName 样式名
      * @return 行
      */
     public Row createRow(String styleName) {
@@ -222,6 +227,7 @@ public class ExcelCommand {
      * 创建单元格，
      * 注入样式
      *
+     * @param styleName 样式名
      * @return 单元格
      */
     public Cell createCell(String styleName) {
@@ -264,8 +270,10 @@ public class ExcelCommand {
     private boolean lateRenderFlag;
     private Map<Integer, Integer> lateRenderCellWidth;
     private Map<Integer, Short> lateRenderRowHeight;
-    private Map<Integer, Double> lateRenderAutoCellValueLength;
 
+    /**
+     * 即时渲染列宽行高
+     */
     public void lateRender() {
         if (!lateRenderFlag) {
             lateRenderCellWidth.forEach((key, value) -> {
@@ -284,13 +292,18 @@ public class ExcelCommand {
         }
     }
 
+    /**
+     * 设置当前行高度
+     *
+     * @param height 高度
+     */
     public void setRowHeight(short height) {
         lateRenderRowHeight.put(currentRowIndex(), height);
     }
 
     /**
      * 设置当前列宽度，
-     * 在新建Sheet或执行指令时渲染，
+     * 在新建Sheet或执行指令时渲染
      *
      * @param width 宽度
      */
@@ -303,7 +316,7 @@ public class ExcelCommand {
 
     /**
      * 合并若干行，
-     * 在新建Sheet或执行指令时渲染，
+     * 在新建Sheet或执行指令时渲染
      */
     public void range() {
         range(null,
@@ -317,7 +330,7 @@ public class ExcelCommand {
      * 合并若干行，
      * 在新建Sheet或执行指令时渲染，
      *
-     * @param cellRangeAddress 合并对象
+     * @param cellRangeAddress 单元格范围地址
      */
     public void range(CellRangeAddress cellRangeAddress) {
         range(cellRangeAddress,
@@ -330,83 +343,106 @@ public class ExcelCommand {
     /**
      * 合并若干行，
      * 在新建Sheet或执行指令时渲染，
+     *
+     * @param borderStyle 边框样式
      */
-    public void range(BorderStyle border) {
+    public void range(BorderStyle borderStyle) {
         range(null,
-                border,
-                border,
-                border,
-                border);
+                borderStyle,
+                borderStyle,
+                borderStyle,
+                borderStyle);
     }
 
     /**
      * 合并若干行，
-     * 在新建Sheet或执行指令时渲染，
+     * 在新建Sheet或执行指令时渲染
+     *
+     * @param topAndBottomBorderStyle 上下边框样式
+     * @param leftAndRightBorderStyle 左右边框样式
      */
-    public void range(BorderStyle borderTopAndBottom, BorderStyle borderLeftAndRight) {
+    public void range(BorderStyle topAndBottomBorderStyle, BorderStyle leftAndRightBorderStyle) {
         range(null,
-                borderTopAndBottom,
-                borderLeftAndRight,
-                borderTopAndBottom,
-                borderLeftAndRight);
+                topAndBottomBorderStyle,
+                leftAndRightBorderStyle,
+                topAndBottomBorderStyle,
+                leftAndRightBorderStyle);
     }
 
     /**
      * 合并若干行，
-     * 在新建Sheet或执行指令时渲染，
+     * 在新建Sheet或执行指令时渲染
+     *
+     * @param topBorderStyle    上边框样式
+     * @param rightBorderStyle  右边框样式
+     * @param bottomBorderStyle 下边框样式
+     * @param leftBorderStyle   左边框样式
      */
-    public void range(BorderStyle borderTop, BorderStyle borderRight, BorderStyle borderBottom, BorderStyle borderLeft) {
+    public void range(BorderStyle topBorderStyle, BorderStyle rightBorderStyle, BorderStyle bottomBorderStyle, BorderStyle leftBorderStyle) {
         range(null,
-                borderTop,
-                borderRight,
-                borderBottom,
-                borderLeft);
+                topBorderStyle,
+                rightBorderStyle,
+                bottomBorderStyle,
+                leftBorderStyle);
     }
 
     /**
      * 合并若干行，
-     * 在新建Sheet或执行指令时渲染，
+     * 在新建Sheet或执行指令时渲染
+     *
+     * @param cellRangeAddress 单元格范围地址
+     * @param borderStyle      边框样式
      */
-    public void range(CellRangeAddress region, BorderStyle border) {
-        range(region,
-                border,
-                border,
-                border,
-                border);
+    public void range(CellRangeAddress cellRangeAddress, BorderStyle borderStyle) {
+        range(cellRangeAddress,
+                borderStyle,
+                borderStyle,
+                borderStyle,
+                borderStyle);
     }
 
     /**
      * 合并若干行，
-     * 在新建Sheet或执行指令时渲染，
+     * 在新建Sheet或执行指令时渲染
+     *
+     * @param cellRangeAddress        单元格范围地址
+     * @param topAndBottomBorderStyle 上下边框样式
+     * @param leftAndRightBorderStyle 左右边框样式
      */
-    public void range(CellRangeAddress region, BorderStyle borderTopAndBottom, BorderStyle borderLeftAndRight) {
-        range(region,
-                borderTopAndBottom,
-                borderLeftAndRight,
-                borderTopAndBottom,
-                borderLeftAndRight);
+    public void range(CellRangeAddress cellRangeAddress, BorderStyle topAndBottomBorderStyle, BorderStyle leftAndRightBorderStyle) {
+        range(cellRangeAddress,
+                topAndBottomBorderStyle,
+                leftAndRightBorderStyle,
+                topAndBottomBorderStyle,
+                leftAndRightBorderStyle);
     }
 
     /**
      * 合并若干行，
-     * 在新建Sheet或执行指令时渲染，
+     * 在新建Sheet或执行指令时渲染
+     *
+     * @param cellRangeAddress  单元格范围地址
+     * @param topBorderStyle    上边框样式
+     * @param rightBorderStyle  右边框样式
+     * @param bottomBorderStyle 下边框样式
+     * @param leftBorderStyle   左边框样式
      */
-    public void range(CellRangeAddress region, BorderStyle borderTop, BorderStyle borderRight, BorderStyle borderBottom, BorderStyle borderLeft) {
-        if (region == null) {
-            region = new CellRangeAddress(currentRowIndex(), currentRowIndex(), 0, cellSize - 1);
+    public void range(CellRangeAddress cellRangeAddress, BorderStyle topBorderStyle, BorderStyle rightBorderStyle, BorderStyle bottomBorderStyle, BorderStyle leftBorderStyle) {
+        if (cellRangeAddress == null) {
+            cellRangeAddress = new CellRangeAddress(currentRowIndex(), currentRowIndex(), 0, cellSize - 1);
         }
-        sheet.addMergedRegionUnsafe(region);
-        if (borderTop != null) {
-            RegionUtil.setBorderTop(borderTop, region, sheet);
+        sheet.addMergedRegionUnsafe(cellRangeAddress);
+        if (topBorderStyle != null) {
+            RegionUtil.setBorderTop(topBorderStyle, cellRangeAddress, sheet);
         }
-        if (borderRight != null) {
-            RegionUtil.setBorderRight(borderRight, region, sheet);
+        if (rightBorderStyle != null) {
+            RegionUtil.setBorderRight(rightBorderStyle, cellRangeAddress, sheet);
         }
-        if (borderBottom != null) {
-            RegionUtil.setBorderBottom(borderBottom, region, sheet);
+        if (bottomBorderStyle != null) {
+            RegionUtil.setBorderBottom(bottomBorderStyle, cellRangeAddress, sheet);
         }
-        if (borderLeft != null) {
-            RegionUtil.setBorderLeft(borderLeft, region, sheet);
+        if (leftBorderStyle != null) {
+            RegionUtil.setBorderLeft(leftBorderStyle, cellRangeAddress, sheet);
         }
     }
 

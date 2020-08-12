@@ -29,6 +29,7 @@ public class ProcessorFactory {
      *
      * @param annotation   注解
      * @param excelCommand 基础命令
+     * @param clazz        实体类
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
@@ -38,7 +39,12 @@ public class ProcessorFactory {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         WriteSheetInitProcessor writeSheetInitProcessor = getProcessor(annotationClass, WriteSheetInitProcessor.class);
         if (writeSheetInitProcessor != null) {
-            Annotation annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
+            Annotation annotationEntity;
+            try {
+                annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
+            } catch (ReflexException e) {
+                throw new ExcelWriteException(e);
+            }
             writeSheetInitProcessor.sheetInitProcess(annotationEntity,
                     excelCommand,
                     clazz);
@@ -50,6 +56,7 @@ public class ProcessorFactory {
      *
      * @param annotation   注解
      * @param excelCommand 基础命令
+     * @param clazz        实体类
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
@@ -61,7 +68,12 @@ public class ProcessorFactory {
         WriteHeaderProcessor writeHeaderProcessor = getProcessor(annotationClass, WriteHeaderProcessor.class);
         if (writeHeaderProcessor != null) {
             excelCommand.createRow();
-            Object annotationEntity = clazz.getDeclaredAnnotation(annotationClass);
+            Annotation annotationEntity;
+            try {
+                annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
+            } catch (ReflexException e) {
+                throw new ExcelWriteException(e);
+            }
             writeHeaderProcessor.headerProcess((Annotation) annotationEntity,
                     excelCommand,
                     clazz);

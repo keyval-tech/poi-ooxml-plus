@@ -11,12 +11,19 @@ import org.apache.poi.ss.usermodel.Workbook;
  */
 public class ExcelStyleCommand {
 
+    /**
+     * 头部介绍行
+     */
     public static final String HEADER_TITLE_CELL_STYLE_NAME = "HEADER_TITLE_CELL_STYLE_NAME";
 
-    public static final String HEADER_SUBTITLE_CELL_STYLE_NAME = "HEADER_SUBTITLE_CELL_STYLE_NAME";
-
+    /**
+     * 数据标题行
+     */
     public static final String DATA_TITLE_CELL_STYLE_NAME = "DATA_TITLE_CELL_STYLE_NAME";
 
+    /**
+     * 数据体行
+     */
     public static final String DATA_BODY_CELL_STYLE_NAME = "DATA_BODY_CELL_STYLE_NAME";
 
     protected ExcelStyleCommand(Workbook workbook) {

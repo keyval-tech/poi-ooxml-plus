@@ -15,8 +15,8 @@ import java.lang.annotation.Target;
  *
  * @author KoviChen
  */
-@Target({ElementType.FIELD})
 @Processor(WriteColumnConfigProcessors.class)
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface WriteColumnConfig {
 

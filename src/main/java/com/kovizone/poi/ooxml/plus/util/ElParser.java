@@ -122,6 +122,7 @@ public class ElParser {
      * @param expressionString 表达式字符串
      * @param index            实体集当前索引
      * @param clazz            解析结果类
+     * @param <T>              解析结果类泛型
      * @return 解析结果
      * @throws ExpressionParseException 异常
      */

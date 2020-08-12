@@ -16,12 +16,12 @@ import java.util.*;
 public class Test {
 
     public static void main(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        List<TestEntity> testEntities = new ArrayList<>();
-        testEntities.add(new TestEntity("我", "222222", "00", "4", 1, new Date(), null, null));
-        testEntities.add(new TestEntity("5", "6", "01", "8", 2, new Date(), "test", "test8"));
-        testEntities.add(new TestEntity("9", "10", "02", null, 3, new Date(), null, null));
-        testEntities.add(new TestEntity("我和", "10", "02", null, 3, new Date(), null, null));
-        testEntities.add(new TestEntity("我和你", "10", "02", null, 3, new Date(), null, null));
+        List<TestEntity2> testEntities = new ArrayList<>();
+        testEntities.add(new TestEntity2("我", "222222", "00", "4", 1, new Date(), null, null));
+        testEntities.add(new TestEntity2("5", "6", "01", "8", 2, new Date(), "test", "test8"));
+        testEntities.add(new TestEntity2("9", "10", "02", null, 3, new Date(), null, null));
+        testEntities.add(new TestEntity2("我和", "10", "02", null, 3, new Date(), null, null));
+        testEntities.add(new TestEntity2("我和你", "10", "02", null, 3, new Date(), null, null));
 
         Workbook workbook = new HSSFWorkbook();
         new ExcelWriter().write(workbook, testEntities, new HashMap<String, Object>() {{
@@ -32,9 +32,15 @@ public class Test {
         workbook.write(new FileOutputStream(new File("D:/test/" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".xls")));
     }
 
+    public static class TestEntity2 extends TestEntity{
+
+        public TestEntity2(String test, String test2, String test3, String test4, Integer test5, Date test6, String test7, String test8) {
+            super(test, test2, test3, test4, test5, test6, test7, test8);
+        }
+    }
+
     @WriteInit
     @WriteHeader("这是标题")
-    @WriteSubheader("日期：#datetime 作者：#author")
     public static class TestEntity {
 
         @WriteColumnConfig(value = "测试1", width = 7 * 256)

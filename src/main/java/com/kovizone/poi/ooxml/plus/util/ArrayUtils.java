@@ -12,13 +12,13 @@ public class ArrayUtils {
 
     /**
      * <p>数组叠加，去除空项</p>
-     * <p><pre class="code">
+     * <pre class="code">
      *  String[] strArray1 = new String[]{"value1", null, "value2"};
      *  String[] strArray2 = new String[]{"value3", null, "value4"};
      *
      *  // {"value1", "value2", "value3", "value4"}
      *  String[] strArray3 = ArrayUtils.addTrimAll(strArray1, strArray2);
-     * </pre></p>
+     * </pre>
      *
      * @param original 原数组
      * @param array    叠加数组
@@ -31,14 +31,14 @@ public class ArrayUtils {
 
     /**
      * <p>数组叠加</p>
-     * <p>
-     * <p><pre class="code">
+     *
+     * <pre class="code">
      *  String[] strArray1 = new String[]{"value1", null, "value2"};
      *  String[] strArray2 = new String[]{"value3", null, "value4"};
      *
      *  // {"value1", null, "value2", "value3", null, "value4"}
      *  String[] strArray3 = ArrayUtils.addAll(strArray1, strArray2);
-     * </pre></p>
+     * </pre>
      *
      * @param original 原数组
      * @param array    叠加数组
@@ -62,13 +62,13 @@ public class ArrayUtils {
 
     /**
      * 去掉数组中的空项
-     * <p>
-     * <p><pre class="code">
+     *
+     * <pre class="code">
      *  String[] strArray1 = new String[]{"value1", null, "value2"};
      *
      *  // {"value1", "value2"}
      *  String[] strArray2 = ArrayUtils.trim(strArray1);
-     * </pre></p>
+     * </pre>
      *
      * @param original 数组
      * @param <T>      泛型
