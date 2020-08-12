@@ -43,32 +43,32 @@ public class Test {
     @WriteHeader("这是标题")
     public static class TestEntity {
 
-        @WriteColumnConfig(value = "测试1", width = 7 * 256)
+        @WriteColumn(value = "测试1", width = 7 * 256)
         String test;
 
-        @WriteColumnConfig(sort = 20, value = "测试2", width = 10000)
+        @WriteColumn(sort = 20, value = "测试2", width = 10000)
         String test2;
 
         @WriteStringReplace(target = {"'00'", "'01'", "'02'"}, replacement = {"'零零'", "'零一'", "'零二' + #list[i].test2"})
-        @WriteColumnConfig(sort = 30, value = "测试3")
+        @WriteColumn(sort = 30, value = "测试3")
         String test3;
 
         @WriteSubstitute(criteria = "#list[#i].test4 == null", value = "空值")
-        @WriteColumnConfig(sort = 40, value = "测试4")
+        @WriteColumn(sort = 40, value = "测试4")
         String test4;
 
-        @WriteColumnConfig(sort = 50, value = "测试5")
+        @WriteColumn(sort = 50, value = "测试5")
         Integer test5;
 
         @WriteDateFormat("yyyy-MM-dd HH:mm:ss SSS")
-        @WriteColumnConfig(sort = 60, value = "测试6")
+        @WriteColumn(sort = 60, value = "测试6")
         Date test6;
 
         @WriteSubstitute(criteria = "#list[#i].test7 == null", value = "'空值' + #test")
-        @WriteColumnConfig(sort = 70, value = "测试7")
+        @WriteColumn(sort = 70, value = "测试7")
         String test7;
 
-        @WriteColumnConfig(sort = 80, value = "测试8")
+        @WriteColumn(sort = 80, value = "测试8")
         @WriteCriteria("#this.test8 == null ? #this.test2 : #this.test8")
         String test8;
 

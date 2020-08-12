@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
 
-import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
+import com.kovizone.poi.ooxml.plus.anno.WriteColumn;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteDataTitleProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
@@ -9,21 +9,21 @@ import com.kovizone.poi.ooxml.plus.util.StringUtils;
 import java.lang.reflect.Field;
 
 /**
- * <p>{@link WriteColumnConfig}注解的处理器</p>
+ * <p>{@link WriteColumn}注解的处理器</p>
  *
  * @author KoviChen
  */
-public class WriteColumnConfigProcessors implements WriteDataTitleProcessor<WriteColumnConfig> {
+public class WriteColumnProcessors implements WriteDataTitleProcessor<WriteColumn> {
 
     @Override
-    public void dataTitleProcess(WriteColumnConfig writeColumnConfig,
+    public void dataTitleProcess(WriteColumn writeColumn,
                                  ExcelCommand excelCommand,
                                  Field targetField) {
-        String dateTitle = writeColumnConfig.value();
+        String dateTitle = writeColumn.value();
         if (!StringUtils.isEmpty(dateTitle)) {
             excelCommand.setCellValue(dateTitle);
         }
-        int cellWidth = writeColumnConfig.width();
+        int cellWidth = writeColumn.width();
         excelCommand.setCellWidth(cellWidth);
     }
 }

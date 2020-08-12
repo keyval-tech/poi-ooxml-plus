@@ -1,6 +1,6 @@
 package com.kovizone.poi.ooxml.plus;
 
-import com.kovizone.poi.ooxml.plus.anno.WriteColumnConfig;
+import com.kovizone.poi.ooxml.plus.anno.WriteColumn;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
@@ -261,9 +261,9 @@ public class ExcelWriter {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
-                if (field.isAnnotationPresent(WriteColumnConfig.class)) {
-                    WriteColumnConfig writeColumnConfig = field.getDeclaredAnnotation(WriteColumnConfig.class);
-                    int sort = writeColumnConfig.sort();
+                if (field.isAnnotationPresent(WriteColumn.class)) {
+                    WriteColumn writeColumn = field.getDeclaredAnnotation(WriteColumn.class);
+                    int sort = writeColumn.sort();
                     if (!sortList.contains(sort)) {
                         sortList.add(sort);
                     }
