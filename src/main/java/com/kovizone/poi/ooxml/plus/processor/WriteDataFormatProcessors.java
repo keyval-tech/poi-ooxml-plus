@@ -2,7 +2,7 @@ package com.kovizone.poi.ooxml.plus.processor;
 
 
 import com.kovizone.poi.ooxml.plus.anno.WriteDateFormat;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 
@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * @author KoviChen
  */
-public class WriteDataFormatProcessors implements WriteDataBodyProcessor<WriteDateFormat> {
+public class WriteDataFormatProcessors implements WriteProcessor<WriteDateFormat> {
 
     @Override
     public Object dataBodyProcess(WriteDateFormat writeDateFormat,

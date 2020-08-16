@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.anno.WriteStringReplace;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 
 import java.lang.reflect.Field;
@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
  *
  * @author KoviChen
  */
-public class WriteStringReplaceProcessors implements WriteDataBodyProcessor<WriteStringReplace> {
+public class WriteStringReplaceProcessors implements WriteProcessor<WriteStringReplace> {
 
     @Override
     public Object dataBodyProcess(WriteStringReplace writeStringReplace,

@@ -15,8 +15,8 @@ import java.lang.annotation.Target;
  * @author KoviChen
  */
 @Target({ElementType.FIELD})
-@Processor(WriteCriteriaProcessors.class)
 @Retention(RetentionPolicy.RUNTIME)
+@Processor(WriteCriteriaProcessors.class)
 public @interface WriteCriteria {
 
     /**

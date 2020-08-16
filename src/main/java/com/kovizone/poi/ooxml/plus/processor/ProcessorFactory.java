@@ -1,10 +1,7 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataTitleProcessor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteHeaderProcessor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteSheetInitProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
@@ -33,51 +30,21 @@ public class ProcessorFactory {
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
-    public static void sheetInitProcessor(Annotation annotation,
-                                          ExcelCommand excelCommand,
-                                          Class<?> clazz) throws ExcelWriteException {
-        Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteSheetInitProcessor writeSheetInitProcessor = getProcessor(annotationClass, WriteSheetInitProcessor.class);
-        if (writeSheetInitProcessor != null) {
-            Annotation annotationEntity;
-            try {
-                annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
-            } catch (ReflexException e) {
-                throw new ExcelWriteException(e);
-            }
-            writeSheetInitProcessor.sheetInitProcess(annotationEntity,
-                    excelCommand,
-                    clazz);
-        }
-    }
-
-    /**
-     * 解析表头处理器
-     *
-     * @param annotation   注解
-     * @param excelCommand 基础命令
-     * @param clazz        实体类
-     * @throws ExcelWriteException 异常
-     */
-    @SuppressWarnings("unchecked")
     public static void headerProcessor(Annotation annotation,
                                        ExcelCommand excelCommand,
                                        Class<?> clazz) throws ExcelWriteException {
 
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteHeaderProcessor writeHeaderProcessor = getProcessor(annotationClass, WriteHeaderProcessor.class);
-        if (writeHeaderProcessor != null) {
-            excelCommand.createRow();
-            Annotation annotationEntity;
-            try {
-                annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
-            } catch (ReflexException e) {
-                throw new ExcelWriteException(e);
-            }
-            writeHeaderProcessor.headerProcess((Annotation) annotationEntity,
-                    excelCommand,
-                    clazz);
+        WriteProcessor writeProcessor = getProcessor(annotationClass, WriteProcessor.class);
+        Annotation annotationEntity;
+        try {
+            annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
+        } catch (ReflexException e) {
+            throw new ExcelWriteException(e);
         }
+        writeProcessor.headerProcess(annotationEntity,
+                excelCommand,
+                clazz);
     }
 
     /**
@@ -93,10 +60,10 @@ public class ProcessorFactory {
                                           ExcelCommand excelCommand,
                                           Field targetField) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteDataTitleProcessor writeDataTitleProcessor = getProcessor(annotationClass, WriteDataTitleProcessor.class);
-        if (writeDataTitleProcessor != null) {
+        WriteProcessor writeProcessor = getProcessor(annotationClass, WriteProcessor.class);
+        if (writeProcessor != null) {
             Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
-            writeDataTitleProcessor.dataTitleProcess((Annotation) annotationEntity,
+            writeProcessor.dataTitleProcess((Annotation) annotationEntity,
                     excelCommand,
                     targetField);
         }
@@ -118,13 +85,13 @@ public class ProcessorFactory {
                                            Field targetField,
                                            Object columnValue) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteDataBodyProcessor writeDataBodyProcessor = getProcessor(annotationClass, WriteDataBodyProcessor.class);
-        if (writeDataBodyProcessor != null) {
+        WriteProcessor writeProcessor = getProcessor(annotationClass, WriteProcessor.class);
+        if (writeProcessor != null) {
             Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
             if (annotationEntity == null) {
                 annotationEntity = excelCommand.getEntityList().get(excelCommand.currentEntityListIndex()).getClass().getDeclaredAnnotation(annotationClass);
             }
-            columnValue = writeDataBodyProcessor.dataBodyProcess((Annotation) annotationEntity,
+            columnValue = writeProcessor.dataBodyProcess((Annotation) annotationEntity,
                     excelCommand,
                     targetField,
                     columnValue);

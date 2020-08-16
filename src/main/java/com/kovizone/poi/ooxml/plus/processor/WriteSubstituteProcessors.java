@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.anno.WriteSubstitute;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 
@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
  *
  * @author KoviChen
  */
-public class WriteSubstituteProcessors implements WriteDataBodyProcessor<WriteSubstitute> {
+public class WriteSubstituteProcessors implements WriteProcessor<WriteSubstitute> {
 
     @Override
     public Object dataBodyProcess(WriteSubstitute writeSubstitute,

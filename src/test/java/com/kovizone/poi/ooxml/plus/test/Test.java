@@ -2,6 +2,7 @@ package com.kovizone.poi.ooxml.plus.test;
 
 import com.kovizone.poi.ooxml.plus.ExcelWriter;
 import com.kovizone.poi.ooxml.plus.anno.*;
+import com.kovizone.poi.ooxml.plus.api.anno.ExcelColumn;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -16,12 +17,12 @@ import java.util.*;
 public class Test {
 
     public static void main(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        List<TestEntity2> testEntities = new ArrayList<>();
-        testEntities.add(new TestEntity2("我", "222222", "00", "4", 1, new Date(), null, null));
-        testEntities.add(new TestEntity2("5", "6", "01", "8", 2, new Date(), "test", "test8"));
-        testEntities.add(new TestEntity2("9", "10", "02", null, 3, new Date(), null, null));
-        testEntities.add(new TestEntity2("我和", "10", "02", null, 3, new Date(), null, null));
-        testEntities.add(new TestEntity2("我和你", "10", "02", null, 3, new Date(), null, null));
+        List<TestEntity> testEntities = new ArrayList<>();
+        testEntities.add(new TestEntity("我", "222222", "00", "4", 1, new Date(), null, null));
+        testEntities.add(new TestEntity("5", "6", "01", "8", 2, new Date(), "test", "test8"));
+        testEntities.add(new TestEntity("9", "10", "02", null, 3, new Date(), null, null));
+        testEntities.add(new TestEntity("我和", "10", "02", null, 3, new Date(), null, null));
+        testEntities.add(new TestEntity("我和你", "10", "02", null, 3, new Date(), null, null));
 
         Workbook workbook = new HSSFWorkbook();
         new ExcelWriter().write(workbook, testEntities, new HashMap<String, Object>() {{
@@ -29,46 +30,39 @@ public class Test {
             put("#author", "KoviChen");
         }});
 
-        workbook.write(new FileOutputStream(new File("D:/test/" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".xls")));
-    }
-
-    public static class TestEntity2 extends TestEntity {
-
-        public TestEntity2(String test, String test2, String test3, String test4, Integer test5, Date test6, String test7, String test8) {
-            super(test, test2, test3, test4, test5, test6, test7, test8);
-        }
+        workbook.write(new FileOutputStream(new File("C:/test/" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".xls")));
     }
 
     @WriteInit(defaultColumnWidth = 5000)
     @WriteHeader("这是标题")
     public static class TestEntity {
 
-        @WriteColumn(value = "测试1", width = 7 * 256)
+        @ExcelColumn(value = "测试1", width = 7 * 256)
         String test;
 
-        @WriteColumn(sort = 20, value = "测试2", width = 10000)
+        @ExcelColumn(sort = 20, value = "测试2", width = 10000)
         String test2;
 
         @WriteStringReplace(target = {"'00'", "'01'", "'02'"}, replacement = {"'零零'", "'零一'", "'零二' + #list[i].test2"})
-        @WriteColumn(sort = 30, value = "测试3")
+        @ExcelColumn(sort = 30, value = "测试3")
         String test3;
 
         @WriteSubstitute(criteria = "#list[#i].test4 == null", value = "空值")
-        @WriteColumn(sort = 40, value = "测试4")
+        @ExcelColumn(sort = 40, value = "测试4")
         String test4;
 
-        @WriteColumn(sort = 50, value = "测试5")
+        @ExcelColumn(sort = 50, value = "测试5")
         Integer test5;
 
         @WriteDateFormat("yyyy-MM-dd HH:mm:ss SSS")
-        @WriteColumn(sort = 60, value = "测试6")
+        @ExcelColumn(sort = 60, value = "测试6")
         Date test6;
 
         @WriteSubstitute(criteria = "#list[#i].test7 == null", value = "'空值' + #test")
-        @WriteColumn(sort = 70, value = "测试7")
+        @ExcelColumn(sort = 70, value = "测试7")
         String test7;
 
-        @WriteColumn(sort = 80, value = "测试8")
+        @ExcelColumn(sort = 80, value = "测试8")
         @WriteCriteria("#this.test8 == null ? #this.test2 : #this.test8")
         String test8;
 

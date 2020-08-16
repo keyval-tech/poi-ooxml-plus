@@ -2,7 +2,7 @@ package com.kovizone.poi.ooxml.plus.processor;
 
 
 import com.kovizone.poi.ooxml.plus.anno.WritePrefix;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteDataBodyProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 
 import java.lang.reflect.Field;
@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
  *
  * @author KoviChen
  */
-public class WritePrefixProcessors implements WriteDataBodyProcessor<WritePrefix> {
+public class WritePrefixProcessors implements WriteProcessor<WritePrefix> {
 
     @Override
     public Object dataBodyProcess(WritePrefix writePrefix,

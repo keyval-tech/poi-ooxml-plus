@@ -1,12 +1,12 @@
 package com.kovizone.poi.ooxml.plus;
 
-import com.kovizone.poi.ooxml.plus.anno.WriteColumn;
+import com.kovizone.poi.ooxml.plus.api.anno.ExcelColumn;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
+import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
 import com.kovizone.poi.ooxml.plus.processor.ProcessorFactory;
-import com.kovizone.poi.ooxml.plus.style.DefaultExcelStyle;
 import com.kovizone.poi.ooxml.plus.util.ReflexUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -18,15 +18,19 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
- * POI构造者
+ * Excel输出器
  *
  * @author KoviChen
- * @author KoviChen2
  */
 public class ExcelWriter {
 
     /**
-     * xlsz最大行数，默认{@value}
+     * 主要属性缓存
+     */
+    private static final Map<Class<?>, List<Field>> COLUMN_FIELD_LIST_CACHE = new HashMap<>(16);
+
+    /**
+     * xls最大行数，默认{@value}
      */
     public static final int XLS_MAX_ROW_SIZE = 65536;
 
@@ -41,7 +45,7 @@ public class ExcelWriter {
     public static final String SHEET_NUM = "[page]";
 
     /**
-     * 样式管理气
+     * 样式管理
      */
     private ExcelStyle excelStyle;
 
@@ -51,7 +55,8 @@ public class ExcelWriter {
      */
     public ExcelWriter() {
         super();
-        this.excelStyle = new DefaultExcelStyle();
+        this.excelStyle = new ExcelStyle() {
+        };
     }
 
     /**
@@ -161,12 +166,11 @@ public class ExcelWriter {
      * @throws ExcelWriteException 构造异常
      */
     public void write(Workbook workbook, List<?> entityList, Map<String, Object> vars) throws ExcelWriteException {
-
         if (entityList == null || entityList.isEmpty()) {
             return;
         }
 
-        int maxLength = (workbook instanceof HSSFWorkbook) ? XLS_MAX_ROW_SIZE : XLSX_MAX_ROW_SIZE;
+        int rowMaxLength = (workbook instanceof HSSFWorkbook) ? XLS_MAX_ROW_SIZE : XLSX_MAX_ROW_SIZE;
 
         // 主要属性集
         Class<?> clazz = entityList.get(0).getClass();
@@ -180,8 +184,7 @@ public class ExcelWriter {
 
             Annotation[] clazzAnnotations = ReflexUtils.getDeclaredAnnotations(clazz);
             for (Annotation clazzAnnotation : clazzAnnotations) {
-                ProcessorFactory.sheetInitProcessor(clazzAnnotation, excelCommand, clazz);
-                // headerProcessor子方法里创建行
+                excelCommand.createRow();
                 ProcessorFactory.headerProcessor(clazzAnnotation, excelCommand, clazz);
             }
 
@@ -203,7 +206,7 @@ public class ExcelWriter {
             for (; excelCommand.currentEntityListIndex() < entityList.size(); excelCommand.nextEntityListIndex()) {
                 Object entity = entityList.get(excelCommand.currentEntityListIndex());
 
-                if (excelCommand.currentRowIndex() >= maxLength) {
+                if (excelCommand.currentRowIndex() >= rowMaxLength) {
                     // 达到最大行数，新增工作簿
                     continue sheetCycle;
                 }
@@ -236,13 +239,8 @@ public class ExcelWriter {
     }
 
     /**
-     * 主要属性缓存
-     */
-    private static final Map<Class<?>, List<Field>> COLUMN_FIELD_LIST_CACHE = new HashMap<>(16);
-
-    /**
-     * 获取有@PoiColumn注解的属性集合，
-     * 解析PoiColumn的sort，进行排序
+     * 获取有{@link ExcelColumn}注解的属性集合，
+     * 解析{@link ExcelColumn}的{@code sort}，进行排序
      *
      * @param clazz 类
      * @return 获取有@PoiColumn注解的属性集合
@@ -261,9 +259,9 @@ public class ExcelWriter {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
-                if (field.isAnnotationPresent(WriteColumn.class)) {
-                    WriteColumn writeColumn = field.getDeclaredAnnotation(WriteColumn.class);
-                    int sort = writeColumn.sort();
+                if (field.isAnnotationPresent(ExcelColumn.class)) {
+                    ExcelColumn excelColumn = field.getDeclaredAnnotation(ExcelColumn.class);
+                    int sort = excelColumn.sort();
                     if (!sortList.contains(sort)) {
                         sortList.add(sort);
                     }

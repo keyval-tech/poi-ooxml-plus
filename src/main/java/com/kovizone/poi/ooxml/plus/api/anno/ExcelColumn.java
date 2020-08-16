@@ -1,7 +1,6 @@
-package com.kovizone.poi.ooxml.plus.anno;
+package com.kovizone.poi.ooxml.plus.api.anno;
 
-import com.kovizone.poi.ooxml.plus.api.anno.Processor;
-import com.kovizone.poi.ooxml.plus.processor.WriteColumnProcessors;
+import com.kovizone.poi.ooxml.plus.processor.ExcelColumnProcessors;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,14 +10,14 @@ import java.lang.annotation.Target;
 /**
  * <p>指定为Excel列字段</p>
  *
- * <p>注解处理器{@link WriteColumnProcessors}</p>
+ * <p>注解处理器{@link ExcelColumnProcessors}</p>
  *
  * @author KoviChen
  */
-@Processor(WriteColumnProcessors.class)
+@Processor(ExcelColumnProcessors.class)
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WriteColumn {
+public @interface ExcelColumn {
 
     /**
      * 指定显示列名
