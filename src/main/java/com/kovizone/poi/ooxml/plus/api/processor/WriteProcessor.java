@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  *
  * @author 11061
  */
-public interface WriteProcessor<A extends Annotation> {
+public interface WriteProcessor<A extends Annotation> extends BaseProcessor<A> {
 
     /**
      * 表头处理

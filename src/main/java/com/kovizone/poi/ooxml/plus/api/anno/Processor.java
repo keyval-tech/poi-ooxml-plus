@@ -1,5 +1,7 @@
 package com.kovizone.poi.ooxml.plus.api.anno;
 
+import com.kovizone.poi.ooxml.plus.api.processor.BaseProcessor;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,5 +15,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Processor {
-    Class<?> value();
+    Class<? extends BaseProcessor<?>>[] value();
 }

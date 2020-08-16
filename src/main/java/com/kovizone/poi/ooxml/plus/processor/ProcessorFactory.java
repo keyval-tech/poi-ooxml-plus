@@ -1,6 +1,7 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
+import com.kovizone.poi.ooxml.plus.api.processor.BaseProcessor;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
@@ -106,7 +107,7 @@ public class ProcessorFactory {
     private final static String NOT_FOUND_PROCESSOR_PLACEHOLDER = "not found processor";
 
     @SuppressWarnings("unchecked")
-    private static <P> P getProcessor(Class<? extends Annotation> annotationClass, Class<P> processorClass) throws ExcelWriteException {
+    private static <P extends BaseProcessor<?>> P getProcessor(Class<? extends Annotation> annotationClass, Class<P> processorClass) throws ExcelWriteException {
         if (NOT_PROCESSOR_CACHE.contains(annotationClass)) {
             return null;
         }
@@ -116,17 +117,19 @@ public class ProcessorFactory {
             // 判断注解是否存在处理器
             if (annotationClass.isAnnotationPresent(Processor.class)) {
                 Processor processorAnnotation = annotationClass.getDeclaredAnnotation(Processor.class);
-                Class<?> processor = processorAnnotation.value();
-                if (processorClass.isAssignableFrom(processor)) {
-                    try {
-                        processorObject = ReflexUtils.newInstance(processor);
-                        PROCESSOR_CACHE.put(cacheKey, processorObject);
-                    } catch (ReflexException e) {
-                        e.printStackTrace();
-                        throw new ExcelWriteException("构造处理器失败;" + e.getMessage());
+                Class<? extends BaseProcessor<?>>[] processors = processorAnnotation.value();
+                for (Class<? extends BaseProcessor<?>> processor : processors) {
+                    if (processorClass.isAssignableFrom(processor)) {
+                        try {
+                            processorObject = ReflexUtils.newInstance(processor);
+                            PROCESSOR_CACHE.put(cacheKey, processorObject);
+                        } catch (ReflexException e) {
+                            e.printStackTrace();
+                            throw new ExcelWriteException("构造处理器失败;" + e.getMessage());
+                        }
+                    } else {
+                        PROCESSOR_CACHE.put(cacheKey, NOT_FOUND_PROCESSOR_PLACEHOLDER);
                     }
-                } else {
-                    PROCESSOR_CACHE.put(cacheKey, NOT_FOUND_PROCESSOR_PLACEHOLDER);
                 }
             } else {
                 NOT_PROCESSOR_CACHE.add(annotationClass);
