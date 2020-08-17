@@ -19,7 +19,15 @@ import java.util.*;
  */
 public class ExcelCommand {
 
-    public ExcelCommand(Workbook workbook, int cellSize, Map<String, Object> vars, ExcelStyle excelStyle, List<?> entityList) {
+    public ExcelCommand(
+            Workbook workbook,
+            int cellSize,
+            Map<String, Object> vars,
+            ExcelStyle excelStyle,
+            List<?> entityList,
+            Short defaultRowHeight,
+            Integer defaultColumnWidth,
+            String sheetName) {
         super();
         this.workbook = workbook;
         this.cellSize = cellSize;
@@ -33,6 +41,9 @@ public class ExcelCommand {
         this.entityList = entityList;
         this.elParser = new ElParser(entityList);
         this.entityListIndex = 0;
+        this.defaultColumnWidth = defaultColumnWidth;
+        this.defaultRowHeight = defaultRowHeight;
+        this.sheetName = sheetName;
     }
 
     /**
@@ -89,6 +100,11 @@ public class ExcelCommand {
     private Map<String, Object> vars;
 
     /**
+     * Sheet标签名
+     */
+    private String sheetName;
+
+    /**
      * 获取当前单元格索引
      *
      * @return 当前单元格索引
@@ -120,6 +136,14 @@ public class ExcelCommand {
      */
     public void createSheet() {
         createSheet("Sheet#{sheetNum}");
+        if (!StringUtils.isEmpty(sheetName)) {
+            if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
+                sheetName = sheetName + ExcelWriter.SHEET_NUM;
+            }
+            workbook.setSheetName(currentSheetIndex(), sheetName.replace(
+                    ExcelWriter.SHEET_NUM,
+                    String.valueOf(currentSheetIndex() + 1)));
+        }
     }
 
     /**
@@ -155,12 +179,7 @@ public class ExcelCommand {
     }
 
     public void setSheetName(String sheetName) {
-        if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
-            sheetName = sheetName + ExcelWriter.SHEET_NUM;
-        }
-        workbook.setSheetName(currentSheetIndex(), sheetName.replace(
-                ExcelWriter.SHEET_NUM,
-                String.valueOf(currentSheetIndex() + 1)));
+        this.sheetName = sheetName;
     }
 
     /**

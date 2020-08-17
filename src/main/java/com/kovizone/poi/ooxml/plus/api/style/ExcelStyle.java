@@ -1,8 +1,8 @@
 package com.kovizone.poi.ooxml.plus.api.style;
 
 import com.kovizone.poi.ooxml.plus.command.ExcelStyleCommand;
+import com.kovizone.poi.ooxml.plus.processor.ExcelColumnProcessors;
 import com.kovizone.poi.ooxml.plus.processor.WriteHeaderProcessors;
-import com.kovizone.poi.ooxml.plus.processor.WriteInitProcessors;
 import org.apache.poi.ss.usermodel.*;
 
 import java.util.HashMap;
@@ -88,8 +88,8 @@ public interface ExcelStyle {
     default Map<String, CellStyle> styleMap(ExcelStyleCommand command) {
         Map<String, CellStyle> styleMap = new HashMap<>();
         styleMap.put(WriteHeaderProcessors.HEADER_CELL_STYLE_NAME, defaultHeaderStyle(command));
-        styleMap.put(WriteInitProcessors.DATA_TITLE_CELL_STYLE_NAME, defaultDataTitleStyle(command));
-        styleMap.put(WriteInitProcessors.DATA_BODY_CELL_STYLE_NAME, defaultDataBodyStyle(command));
+        styleMap.put(ExcelColumnProcessors.DATA_TITLE_CELL_STYLE_NAME, defaultDataTitleStyle(command));
+        styleMap.put(ExcelColumnProcessors.DATA_BODY_CELL_STYLE_NAME, defaultDataBodyStyle(command));
         return styleMap;
     }
 }

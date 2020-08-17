@@ -15,6 +15,16 @@ import java.lang.reflect.Field;
  */
 public class ExcelColumnProcessors implements WriteProcessor<ExcelColumn> {
 
+    /**
+     * 数据标题行
+     */
+    public static final String DATA_TITLE_CELL_STYLE_NAME = "DATA_TITLE_CELL_STYLE_NAME";
+
+    /**
+     * 数据体行
+     */
+    public static final String DATA_BODY_CELL_STYLE_NAME = "DATA_BODY_CELL_STYLE_NAME";
+
     @Override
     public void dataTitleProcess(ExcelColumn excelColumn,
                                  ExcelCommand excelCommand,

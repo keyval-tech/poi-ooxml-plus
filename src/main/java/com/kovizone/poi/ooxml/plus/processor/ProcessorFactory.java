@@ -37,15 +37,18 @@ public class ProcessorFactory {
 
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         WriteProcessor writeProcessor = getProcessor(annotationClass, WriteProcessor.class);
-        Annotation annotationEntity;
-        try {
-            annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
-        } catch (ReflexException e) {
-            throw new ExcelWriteException(e);
+        if (writeProcessor != null) {
+            excelCommand.createRow();
+            Annotation annotationEntity;
+            try {
+                annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
+            } catch (ReflexException e) {
+                throw new ExcelWriteException(e);
+            }
+            writeProcessor.headerProcess(annotationEntity,
+                    excelCommand,
+                    clazz);
         }
-        writeProcessor.headerProcess(annotationEntity,
-                excelCommand,
-                clazz);
     }
 
     /**
@@ -57,7 +60,7 @@ public class ProcessorFactory {
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
-    public static void dateTitleProcessor(Annotation annotation,
+    public static void dataTitleProcessor(Annotation annotation,
                                           ExcelCommand excelCommand,
                                           Field targetField) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
@@ -81,7 +84,7 @@ public class ProcessorFactory {
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
-    public static Object dateBodyProcessor(Annotation annotation,
+    public static Object dataBodyProcessor(Annotation annotation,
                                            ExcelCommand excelCommand,
                                            Field targetField,
                                            Object columnValue) throws ExcelWriteException {

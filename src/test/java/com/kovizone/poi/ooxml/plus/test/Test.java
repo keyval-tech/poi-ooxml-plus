@@ -17,6 +17,9 @@ import java.util.*;
 public class Test {
 
     public static void main(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
+
+        ExcelWriter excelWriter = new ExcelWriter().setDefaultColumnWidth(5000);
+
         List<TestEntity> testEntities = new ArrayList<>();
         testEntities.add(new TestEntity("我", "222222", "00", "4", 1, new Date(), null, null));
         testEntities.add(new TestEntity("5", "6", "01", "8", 2, new Date(), "test", "test8"));
@@ -24,17 +27,17 @@ public class Test {
         testEntities.add(new TestEntity("我和", "10", "02", null, 3, new Date(), null, null));
         testEntities.add(new TestEntity("我和你", "10", "02", null, 3, new Date(), null, null));
 
-        Workbook workbook = new HSSFWorkbook();
-        new ExcelWriter().write(workbook, testEntities, new HashMap<String, Object>() {{
+        Map<String, Object> vars = new HashMap<String, Object>() {{
             put("#datetime", new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
             put("#author", "KoviChen");
-        }});
+        }};
 
+        Workbook workbook = new HSSFWorkbook();
+        excelWriter.write(workbook, testEntities, vars, "测试分页[page]");
         workbook.write(new FileOutputStream(new File("C:/test/" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".xls")));
     }
 
-    @WriteInit(defaultColumnWidth = 5000)
-    @WriteHeader("这是标题")
+    @WriteHeader("这是标题，作者是#author")
     public static class TestEntity {
 
         @ExcelColumn(value = "测试1", width = 7 * 256)
