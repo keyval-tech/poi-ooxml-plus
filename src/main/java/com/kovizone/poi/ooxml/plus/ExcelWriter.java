@@ -51,14 +51,17 @@ public class ExcelWriter {
     /**
      * 默认行高
      */
-    private Short defaultRowHeight = null;
+    private Short defaultRowHeight;
 
     /**
      * 默认列宽
      */
-    private Integer defaultColumnWidth = null;
+    private Integer defaultColumnWidth;
 
-    private Integer maxSize = null;
+    /**
+     * 最大行号
+     */
+    private Integer maxRowSize;
 
     /**
      * 实体类构造器，
@@ -68,6 +71,58 @@ public class ExcelWriter {
         super();
         this.excelStyle = new ExcelStyle() {
         };
+        this.defaultRowHeight = null;
+        this.defaultColumnWidth = null;
+        this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param defaultRowHeight 默认行高
+     */
+    public ExcelWriter(Short defaultRowHeight) {
+        super();
+        this.excelStyle = new ExcelStyle() {
+        };
+        this.defaultRowHeight = defaultRowHeight;
+        this.defaultColumnWidth = null;
+        this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param defaultColumnWidth 默认列宽
+     */
+    public ExcelWriter(Integer defaultColumnWidth) {
+        super();
+        this.excelStyle = new ExcelStyle() {
+        };
+        this.defaultRowHeight = null;
+        this.defaultColumnWidth = defaultColumnWidth;
+        this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param defaultRowHeight   默认行高
+     * @param defaultColumnWidth 默认列宽
+     */
+    public ExcelWriter(Short defaultRowHeight, Integer defaultColumnWidth) {
+        super();
+        this.excelStyle = new ExcelStyle() {
+        };
+        this.defaultRowHeight = defaultRowHeight;
+        this.defaultColumnWidth = defaultColumnWidth;
+        this.maxRowSize = null;
     }
 
     /**
@@ -80,6 +135,76 @@ public class ExcelWriter {
     public ExcelWriter(ExcelStyle excelStyle) {
         super();
         this.excelStyle = excelStyle;
+        this.defaultRowHeight = null;
+        this.defaultColumnWidth = null;
+        this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param excelStyle       样式
+     * @param defaultRowHeight 默认行高
+     */
+    public ExcelWriter(ExcelStyle excelStyle, Short defaultRowHeight) {
+        super();
+        this.excelStyle = excelStyle;
+        this.defaultRowHeight = defaultRowHeight;
+        this.defaultColumnWidth = null;
+        this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param excelStyle         样式
+     * @param defaultColumnWidth 默认列宽
+     */
+    public ExcelWriter(ExcelStyle excelStyle, Integer defaultColumnWidth) {
+        super();
+        this.excelStyle = excelStyle;
+        this.defaultRowHeight = null;
+        this.defaultColumnWidth = defaultColumnWidth;
+        this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param excelStyle         样式
+     * @param defaultRowHeight   默认行高
+     * @param defaultColumnWidth 默认列宽
+     */
+    public ExcelWriter(ExcelStyle excelStyle, Short defaultRowHeight, Integer defaultColumnWidth) {
+        super();
+        this.excelStyle = excelStyle;
+        this.defaultRowHeight = defaultRowHeight;
+        this.defaultColumnWidth = defaultColumnWidth;
+        this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param excelStyle         样式
+     * @param defaultRowHeight   默认行高
+     * @param defaultColumnWidth 默认列宽
+     * @param maxRowSize         最大行数
+     */
+    public ExcelWriter(ExcelStyle excelStyle, Short defaultRowHeight, Integer defaultColumnWidth, Integer maxRowSize) {
+        super();
+        this.excelStyle = excelStyle;
+        this.defaultRowHeight = defaultRowHeight;
+        this.defaultColumnWidth = defaultColumnWidth;
+        this.maxRowSize = maxRowSize;
     }
 
     /**
@@ -293,7 +418,7 @@ public class ExcelWriter {
             return;
         }
 
-        int rowMaxLength = maxSize != null ? maxSize : ((workbook instanceof HSSFWorkbook) ? DEFAULT_XLS_MAX_ROW_SIZE : DEFAULT_XLSX_MAX_ROW_SIZE);
+        int rowMaxLength = maxRowSize != null ? maxRowSize : ((workbook instanceof HSSFWorkbook) ? DEFAULT_XLS_MAX_ROW_SIZE : DEFAULT_XLSX_MAX_ROW_SIZE);
 
         // 主要属性集
         Class<?> clazz = entityList.get(0).getClass();
@@ -416,29 +541,5 @@ public class ExcelWriter {
     public ExcelWriter setDefaultRowHeight(Short height) {
         defaultRowHeight = height;
         return this;
-    }
-
-    public ExcelStyle getExcelStyle() {
-        return excelStyle;
-    }
-
-    public void setExcelStyle(ExcelStyle excelStyle) {
-        this.excelStyle = excelStyle;
-    }
-
-    public Short getDefaultRowHeight() {
-        return defaultRowHeight;
-    }
-
-    public Integer getDefaultColumnWidth() {
-        return defaultColumnWidth;
-    }
-
-    public Integer getMaxSize() {
-        return maxSize;
-    }
-
-    public void setMaxSize(Integer maxSize) {
-        this.maxSize = maxSize;
     }
 }
