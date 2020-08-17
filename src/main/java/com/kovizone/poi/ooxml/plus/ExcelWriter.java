@@ -81,38 +81,6 @@ public class ExcelWriter {
      * 注入自定义样式，
      * 自定义样式实现{@link ExcelStyle}
      *
-     * @param defaultRowHeight 默认行高
-     */
-    public ExcelWriter(Short defaultRowHeight) {
-        super();
-        this.excelStyle = new ExcelStyle() {
-        };
-        this.defaultRowHeight = defaultRowHeight;
-        this.defaultColumnWidth = null;
-        this.maxRowSize = null;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
-     * @param defaultColumnWidth 默认列宽
-     */
-    public ExcelWriter(Integer defaultColumnWidth) {
-        super();
-        this.excelStyle = new ExcelStyle() {
-        };
-        this.defaultRowHeight = null;
-        this.defaultColumnWidth = defaultColumnWidth;
-        this.maxRowSize = null;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
      * @param defaultRowHeight   默认行高
      * @param defaultColumnWidth 默认列宽
      */
@@ -145,38 +113,6 @@ public class ExcelWriter {
      * 注入自定义样式，
      * 自定义样式实现{@link ExcelStyle}
      *
-     * @param excelStyle       样式
-     * @param defaultRowHeight 默认行高
-     */
-    public ExcelWriter(ExcelStyle excelStyle, Short defaultRowHeight) {
-        super();
-        this.excelStyle = excelStyle;
-        this.defaultRowHeight = defaultRowHeight;
-        this.defaultColumnWidth = null;
-        this.maxRowSize = null;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
-     * @param excelStyle         样式
-     * @param defaultColumnWidth 默认列宽
-     */
-    public ExcelWriter(ExcelStyle excelStyle, Integer defaultColumnWidth) {
-        super();
-        this.excelStyle = excelStyle;
-        this.defaultRowHeight = null;
-        this.defaultColumnWidth = defaultColumnWidth;
-        this.maxRowSize = null;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
      * @param excelStyle         样式
      * @param defaultRowHeight   默认行高
      * @param defaultColumnWidth 默认列宽
@@ -187,6 +123,22 @@ public class ExcelWriter {
         this.defaultRowHeight = defaultRowHeight;
         this.defaultColumnWidth = defaultColumnWidth;
         this.maxRowSize = null;
+    }
+
+    /**
+     * 实体类构造器，
+     * 注入自定义样式，
+     * 自定义样式实现{@link ExcelStyle}
+     *
+     * @param excelStyle 样式
+     * @param maxRowSize 最大行数
+     */
+    public ExcelWriter(ExcelStyle excelStyle, Integer maxRowSize) {
+        super();
+        this.excelStyle = excelStyle;
+        this.defaultRowHeight = null;
+        this.defaultColumnWidth = null;
+        this.maxRowSize = maxRowSize;
     }
 
     /**
@@ -531,15 +483,5 @@ public class ExcelWriter {
         }
         COLUMN_FIELD_LIST_CACHE.put(clazz, poiColumnFieldList);
         return poiColumnFieldList;
-    }
-
-    public ExcelWriter setDefaultColumnWidth(Integer width) {
-        this.defaultColumnWidth = width;
-        return this;
-    }
-
-    public ExcelWriter setDefaultRowHeight(Short height) {
-        defaultRowHeight = height;
-        return this;
     }
 }

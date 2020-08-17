@@ -18,7 +18,8 @@ public class Test {
 
     public static void main(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-        ExcelWriter excelWriter = new ExcelWriter().setDefaultColumnWidth(5000);
+        Short defaultRowHeight = null;
+        ExcelWriter excelWriter = new ExcelWriter(defaultRowHeight, 10000);
 
         List<TestEntity> testEntities = new ArrayList<>();
         testEntities.add(new TestEntity("我", "222222", "00", "4", 1, new Date(), null, null));
