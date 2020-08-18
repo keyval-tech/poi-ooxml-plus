@@ -22,7 +22,7 @@ public class ExcelCommand {
     public ExcelCommand(
             Workbook workbook,
             int cellSize,
-            Map<String, Object> vars,
+            Map<String, Object> headerTextReplaceMap,
             ExcelStyle excelStyle,
             List<?> entityList,
             Short defaultRowHeight,
@@ -31,7 +31,7 @@ public class ExcelCommand {
         super();
         this.workbook = workbook;
         this.cellSize = cellSize;
-        this.vars = vars;
+        this.headerTextReplaceMap = headerTextReplaceMap;
         this.sheetIndex = 0;
         this.nextCellIndex = 0;
         this.nextRowIndex = 0;
@@ -97,7 +97,7 @@ public class ExcelCommand {
     /**
      * 表头文本替换
      */
-    private Map<String, Object> vars;
+    private Map<String, Object> headerTextReplaceMap;
 
     /**
      * Sheet标签名
@@ -180,6 +180,14 @@ public class ExcelCommand {
 
     public void setSheetName(String sheetName) {
         this.sheetName = sheetName;
+        if (!StringUtils.isEmpty(sheetName) && currentSheetIndex() >= 0) {
+            if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
+                sheetName = sheetName + ExcelWriter.SHEET_NUM;
+            }
+            workbook.setSheetName(currentSheetIndex(), sheetName.replace(
+                    ExcelWriter.SHEET_NUM,
+                    String.valueOf(currentSheetIndex() + 1)));
+        }
     }
 
     /**
@@ -472,11 +480,11 @@ public class ExcelCommand {
         }
     }
 
-    public String eval(String target) {
-        if (vars == null) {
+    public String replace(String target) {
+        if (headerTextReplaceMap == null) {
             return target;
         }
-        Set<Map.Entry<String, Object>> entrySet = vars.entrySet();
+        Set<Map.Entry<String, Object>> entrySet = headerTextReplaceMap.entrySet();
         for (Map.Entry<String, Object> entry : entrySet) {
             target = target.replace(entry.getKey(), String.valueOf(entry.getValue()));
         }

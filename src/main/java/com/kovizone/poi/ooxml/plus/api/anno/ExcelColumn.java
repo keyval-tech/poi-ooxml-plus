@@ -34,7 +34,7 @@ public @interface ExcelColumn {
     int sort() default 0;
 
     /**
-     * 列宽设置，
+     * 列宽设置，若小于0则不生效
      *
      * @return 列宽
      */

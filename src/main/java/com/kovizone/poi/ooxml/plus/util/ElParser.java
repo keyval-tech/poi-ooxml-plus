@@ -149,8 +149,10 @@ public class ElParser {
 
     public static void main(String[] args) {
 
-        Expression expression = expressionParser.parseExpression("'00'");
-        System.out.println(expression.getValue(String.class));
+        Expression expression = expressionParser.parseExpression("'00' + #test");
+        EvaluationContext context = new StandardEvaluationContext();
+        context.setVariable("test", "1");
+        System.out.println(expression.getValue(context, String.class));
     }
 
 }

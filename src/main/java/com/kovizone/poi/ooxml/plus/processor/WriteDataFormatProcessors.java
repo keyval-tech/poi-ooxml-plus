@@ -2,7 +2,7 @@ package com.kovizone.poi.ooxml.plus.processor;
 
 
 import com.kovizone.poi.ooxml.plus.anno.WriteDateFormat;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteRenderProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.util.StringUtils;
 
@@ -15,13 +15,13 @@ import java.util.Date;
  *
  * @author KoviChen
  */
-public class WriteDataFormatProcessors implements WriteProcessor<WriteDateFormat> {
+public class WriteDataFormatProcessors implements WriteRenderProcessor<WriteDateFormat> {
 
     @Override
-    public Object dataBodyProcess(WriteDateFormat writeDateFormat,
-                                  ExcelCommand excelCommand,
-                                  Field targetField,
-                                  Object columnValue) {
+    public Object dataBodyRender(WriteDateFormat writeDateFormat,
+                                 ExcelCommand excelCommand,
+                                 Field targetField,
+                                 Object columnValue) {
         if (columnValue instanceof Date) {
             Date targetFieldDateValue = (Date) columnValue;
             if (StringUtils.isEmpty(writeDateFormat.value())) {

@@ -2,7 +2,8 @@ package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.api.anno.Processor;
 import com.kovizone.poi.ooxml.plus.api.processor.BaseProcessor;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteInitProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteRenderProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
@@ -31,21 +32,48 @@ public class ProcessorFactory {
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
-    public static void headerProcessor(Annotation annotation,
-                                       ExcelCommand excelCommand,
-                                       Class<?> clazz) throws ExcelWriteException {
+    public static void sheetInit(Annotation annotation,
+                                 ExcelCommand excelCommand,
+                                 Class<?> clazz) throws ExcelWriteException {
 
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteProcessor writeProcessor = getProcessor(annotationClass, WriteProcessor.class);
-        if (writeProcessor != null) {
-            excelCommand.createRow();
+        WriteInitProcessor writeInitProcessor = getProcessor(annotationClass, WriteInitProcessor.class);
+        if (writeInitProcessor != null) {
             Annotation annotationEntity;
             try {
                 annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
             } catch (ReflexException e) {
                 throw new ExcelWriteException(e);
             }
-            writeProcessor.headerProcess(annotationEntity,
+            writeInitProcessor.sheetInit(annotationEntity,
+                    excelCommand,
+                    clazz);
+        }
+    }
+
+    /**
+     * 解析表头处理器
+     *
+     * @param annotation   注解
+     * @param excelCommand 基础命令
+     * @param clazz        实体类
+     * @throws ExcelWriteException 异常
+     */
+    @SuppressWarnings("unchecked")
+    public static void headerRender(Annotation annotation,
+                                    ExcelCommand excelCommand,
+                                    Class<?> clazz) throws ExcelWriteException {
+
+        Class<? extends Annotation> annotationClass = annotation.annotationType();
+        WriteRenderProcessor writeProcessor = getProcessor(annotationClass, WriteRenderProcessor.class);
+        if (writeProcessor != null) {
+            Annotation annotationEntity;
+            try {
+                annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());
+            } catch (ReflexException e) {
+                throw new ExcelWriteException(e);
+            }
+            writeProcessor.headerRender(annotationEntity,
                     excelCommand,
                     clazz);
         }
@@ -60,14 +88,14 @@ public class ProcessorFactory {
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
-    public static void dataTitleProcessor(Annotation annotation,
-                                          ExcelCommand excelCommand,
-                                          Field targetField) throws ExcelWriteException {
+    public static void dataTitleRender(Annotation annotation,
+                                       ExcelCommand excelCommand,
+                                       Field targetField) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteProcessor writeProcessor = getProcessor(annotationClass, WriteProcessor.class);
+        WriteRenderProcessor writeProcessor = getProcessor(annotationClass, WriteRenderProcessor.class);
         if (writeProcessor != null) {
             Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
-            writeProcessor.dataTitleProcess((Annotation) annotationEntity,
+            writeProcessor.dataTitleRender((Annotation) annotationEntity,
                     excelCommand,
                     targetField);
         }
@@ -84,18 +112,18 @@ public class ProcessorFactory {
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
-    public static Object dataBodyProcessor(Annotation annotation,
-                                           ExcelCommand excelCommand,
-                                           Field targetField,
-                                           Object columnValue) throws ExcelWriteException {
+    public static Object dataBodyRender(Annotation annotation,
+                                        ExcelCommand excelCommand,
+                                        Field targetField,
+                                        Object columnValue) throws ExcelWriteException {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
-        WriteProcessor writeProcessor = getProcessor(annotationClass, WriteProcessor.class);
+        WriteRenderProcessor writeProcessor = getProcessor(annotationClass, WriteRenderProcessor.class);
         if (writeProcessor != null) {
             Object annotationEntity = targetField.getDeclaredAnnotation(annotationClass);
             if (annotationEntity == null) {
                 annotationEntity = excelCommand.getEntityList().get(excelCommand.currentEntityListIndex()).getClass().getDeclaredAnnotation(annotationClass);
             }
-            columnValue = writeProcessor.dataBodyProcess((Annotation) annotationEntity,
+            columnValue = writeProcessor.dataBodyRender((Annotation) annotationEntity,
                     excelCommand,
                     targetField,
                     columnValue);

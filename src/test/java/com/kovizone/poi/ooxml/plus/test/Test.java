@@ -1,22 +1,31 @@
 package com.kovizone.poi.ooxml.plus.test;
 
+import com.kovizone.poi.ooxml.plus.ExcelReader;
 import com.kovizone.poi.ooxml.plus.ExcelWriter;
 import com.kovizone.poi.ooxml.plus.anno.*;
 import com.kovizone.poi.ooxml.plus.api.anno.ExcelColumn;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.WorkbookUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Test {
 
-    public static void main(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static void main(String[] args) throws IOException {
+        Workbook workbook = WorkbookFactory.create(new File("D:\\test\\20200812151345678.xls"));
+        new ExcelReader().reader(workbook, TestEntity.class, 1, 0);
+    }
+
+    public static void main1(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
         Short defaultRowHeight = null;
         ExcelWriter excelWriter = new ExcelWriter(defaultRowHeight, 10000);

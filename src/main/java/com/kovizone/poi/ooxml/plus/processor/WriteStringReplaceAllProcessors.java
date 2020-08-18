@@ -2,7 +2,7 @@ package com.kovizone.poi.ooxml.plus.processor;
 
 
 import com.kovizone.poi.ooxml.plus.anno.WriteStringReplaceAll;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteRenderProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 
 import java.lang.reflect.Field;
@@ -12,13 +12,13 @@ import java.lang.reflect.Field;
  *
  * @author KoviChen
  */
-public class WriteStringReplaceAllProcessors implements WriteProcessor<WriteStringReplaceAll> {
+public class WriteStringReplaceAllProcessors implements WriteRenderProcessor<WriteStringReplaceAll> {
 
     @Override
-    public Object dataBodyProcess(WriteStringReplaceAll writeStringReplace,
-                                  ExcelCommand excelCommand,
-                                  Field targetField,
-                                  Object columnValue) {
+    public Object dataBodyRender(WriteStringReplaceAll writeStringReplace,
+                                 ExcelCommand excelCommand,
+                                 Field targetField,
+                                 Object columnValue) {
         String[] regex = writeStringReplace.regex();
         String[] replacement = writeStringReplace.replacement();
 

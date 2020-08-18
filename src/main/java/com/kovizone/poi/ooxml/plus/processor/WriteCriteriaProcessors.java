@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus.processor;
 
 import com.kovizone.poi.ooxml.plus.anno.WriteCriteria;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteRenderProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 
 import java.lang.reflect.Field;
@@ -11,21 +11,20 @@ import java.lang.reflect.Field;
  *
  * @author KoviChen
  */
-public class WriteCriteriaProcessors implements WriteProcessor<WriteCriteria> {
+public class WriteCriteriaProcessors implements WriteRenderProcessor<WriteCriteria> {
 
     @Override
-    public Object dataBodyProcess(WriteCriteria writeCriteria,
-                                  ExcelCommand excelCommand,
-                                  Field targetField,
-                                  Object columnValue) {
+    public Object dataBodyRender(WriteCriteria writeCriteria,
+                                 ExcelCommand excelCommand,
+                                 Field targetField,
+                                 Object columnValue) {
         try {
             if (excelCommand.parseBoolean(writeCriteria.value())) {
                 return columnValue;
             }
             return null;
         } catch (Exception e) {
-            String value = excelCommand.parseString(writeCriteria.value());
-            return value;
+            return excelCommand.parseString(writeCriteria.value());
         }
     }
 }

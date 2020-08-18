@@ -2,7 +2,7 @@ package com.kovizone.poi.ooxml.plus.processor;
 
 
 import com.kovizone.poi.ooxml.plus.anno.WriteSuffix;
-import com.kovizone.poi.ooxml.plus.api.processor.WriteProcessor;
+import com.kovizone.poi.ooxml.plus.api.processor.WriteRenderProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
 
 import java.lang.reflect.Field;
@@ -12,13 +12,13 @@ import java.lang.reflect.Field;
  *
  * @author KoviChen
  */
-public class WriteSuffixProcessors implements WriteProcessor<WriteSuffix> {
+public class WriteSuffixProcessors implements WriteRenderProcessor<WriteSuffix> {
 
     @Override
-    public Object dataBodyProcess(WriteSuffix writeSuffix,
-                                  ExcelCommand excelCommand,
-                                  Field targetField,
-                                  Object columnValue) {
+    public Object dataBodyRender(WriteSuffix writeSuffix,
+                                 ExcelCommand excelCommand,
+                                 Field targetField,
+                                 Object columnValue) {
         return String.valueOf(columnValue)
                 .concat(excelCommand.parseString(writeSuffix.value()));
     }

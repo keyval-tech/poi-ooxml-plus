@@ -7,6 +7,7 @@ import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
 import com.kovizone.poi.ooxml.plus.processor.ExcelColumnProcessors;
 import com.kovizone.poi.ooxml.plus.processor.ProcessorFactory;
+import com.kovizone.poi.ooxml.plus.util.POPUtils;
 import com.kovizone.poi.ooxml.plus.util.ReflexUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -23,11 +24,6 @@ import java.util.*;
  * @author KoviChen
  */
 public class ExcelWriter {
-
-    /**
-     * 主要属性缓存
-     */
-    private static final Map<Class<?>, List<Field>> COLUMN_FIELD_LIST_CACHE = new HashMap<>(16);
 
     /**
      * xls最大行数，默认{@value}
@@ -62,6 +58,36 @@ public class ExcelWriter {
      * 最大行号
      */
     private Integer maxRowSize;
+
+    /**
+     * 修改默认行高，创建新实例
+     *
+     * @param defaultRowHeight 默认行高
+     * @return Excel输出器
+     */
+    public ExcelWriter setDefaultRowHeight(Short defaultRowHeight) {
+        return new ExcelWriter(excelStyle, defaultRowHeight, defaultColumnWidth, maxRowSize);
+    }
+
+    /**
+     * 修改默认列宽，创建新实例
+     *
+     * @param defaultColumnWidth 默认列宽
+     * @return Excel输出器
+     */
+    public ExcelWriter setDefaultColumnWidth(Integer defaultColumnWidth) {
+        return new ExcelWriter(excelStyle, defaultRowHeight, defaultColumnWidth, maxRowSize);
+    }
+
+    /**
+     * 修改最大行号，创建新实例
+     *
+     * @param maxRowSize 最大行号
+     * @return Excel输出器
+     */
+    public ExcelWriter setMaxRowSize(Integer maxRowSize) {
+        return new ExcelWriter(excelStyle, defaultRowHeight, defaultColumnWidth, maxRowSize);
+    }
 
     /**
      * 实体类构造器，
@@ -173,14 +199,14 @@ public class ExcelWriter {
     /**
      * 构造SXSSF工作表
      *
-     * @param entityList           实体对象集
-     * @param headerTextReplaceMap 表头替换文本
+     * @param entityList 实体对象集
+     * @param replaceMap 替换文本
      * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeSXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
+    public Workbook writeSXSSF(List<?> entityList, Map<String, Object> replaceMap) throws ExcelWriteException {
         Workbook workbook = new SXSSFWorkbook();
-        write(workbook, entityList, headerTextReplaceMap, null);
+        write(workbook, entityList, replaceMap, null);
         return workbook;
     }
 
@@ -201,15 +227,15 @@ public class ExcelWriter {
     /**
      * 构造SXSSF工作表
      *
-     * @param entityList           实体对象集
-     * @param headerTextReplaceMap 表头替换文本
-     * @param sheetName            Sheet标签名
+     * @param entityList 实体对象集
+     * @param replaceMap 替换文本
+     * @param sheetName  Sheet标签名
      * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeSXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap, String sheetName) throws ExcelWriteException {
+    public Workbook writeSXSSF(List<?> entityList, Map<String, Object> replaceMap, String sheetName) throws ExcelWriteException {
         Workbook workbook = new SXSSFWorkbook();
-        write(workbook, entityList, headerTextReplaceMap, sheetName);
+        write(workbook, entityList, replaceMap, sheetName);
         return workbook;
     }
 
@@ -227,14 +253,14 @@ public class ExcelWriter {
     /**
      * 构造XSSF工作表
      *
-     * @param entityList           实体对象集
-     * @param headerTextReplaceMap 表头替换文本
+     * @param entityList 实体对象集
+     * @param replaceMap 替换文本
      * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
+    public Workbook writeXSSF(List<?> entityList, Map<String, Object> replaceMap) throws ExcelWriteException {
         Workbook workbook = new XSSFWorkbook();
-        write(workbook, entityList, headerTextReplaceMap);
+        write(workbook, entityList, replaceMap);
         return workbook;
     }
 
@@ -255,15 +281,15 @@ public class ExcelWriter {
     /**
      * 构造XSSF工作表
      *
-     * @param entityList           实体对象集
-     * @param headerTextReplaceMap 表头替换文本
-     * @param sheetName            Sheet标签名
+     * @param entityList 实体对象集
+     * @param replaceMap 替换文本
+     * @param sheetName  Sheet标签名
      * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeXSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap, String sheetName) throws ExcelWriteException {
+    public Workbook writeXSSF(List<?> entityList, Map<String, Object> replaceMap, String sheetName) throws ExcelWriteException {
         Workbook workbook = new XSSFWorkbook();
-        write(workbook, entityList, headerTextReplaceMap, sheetName);
+        write(workbook, entityList, replaceMap, sheetName);
         return workbook;
     }
 
@@ -281,14 +307,14 @@ public class ExcelWriter {
     /**
      * 构造HSSF工作表
      *
-     * @param entityList           实体对象集
-     * @param headerTextReplaceMap 表头替换文本
+     * @param entityList 实体对象集
+     * @param replaceMap 替换文本
      * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeHSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap) throws ExcelWriteException {
+    public Workbook writeHSSF(List<?> entityList, Map<String, Object> replaceMap) throws ExcelWriteException {
         Workbook workbook = new HSSFWorkbook();
-        write(workbook, entityList, headerTextReplaceMap);
+        write(workbook, entityList, replaceMap);
         return workbook;
     }
 
@@ -309,15 +335,15 @@ public class ExcelWriter {
     /**
      * 构造HSSF工作表
      *
-     * @param entityList           实体对象集
-     * @param headerTextReplaceMap 表头替换文本
-     * @param sheetName            Sheet标签名
+     * @param entityList 实体对象集
+     * @param replaceMap 替换文本
+     * @param sheetName  Sheet标签名
      * @return 工作表
      * @throws ExcelWriteException 构造异常
      */
-    public Workbook writeHSSF(List<?> entityList, Map<String, Object> headerTextReplaceMap, String sheetName) throws ExcelWriteException {
+    public Workbook writeHSSF(List<?> entityList, Map<String, Object> replaceMap, String sheetName) throws ExcelWriteException {
         Workbook workbook = new HSSFWorkbook();
-        write(workbook, entityList, headerTextReplaceMap, sheetName);
+        write(workbook, entityList, replaceMap, sheetName);
         return workbook;
     }
 
@@ -349,11 +375,11 @@ public class ExcelWriter {
      *
      * @param workbook   工作表
      * @param entityList 实体对象集
-     * @param vars       替换文本
+     * @param replaceMap 替换文本
      * @throws ExcelWriteException 构造异常
      */
-    public void write(Workbook workbook, List<?> entityList, Map<String, Object> vars) throws ExcelWriteException {
-        write(workbook, entityList, vars, null);
+    public void write(Workbook workbook, List<?> entityList, Map<String, Object> replaceMap) throws ExcelWriteException {
+        write(workbook, entityList, replaceMap, null);
     }
 
     /**
@@ -361,11 +387,11 @@ public class ExcelWriter {
      *
      * @param workbook   工作表
      * @param entityList 实体对象集
-     * @param vars       替换文本
+     * @param replaceMap 替换文本
      * @param sheetName  Sheet标签名
      * @throws ExcelWriteException 构造异常
      */
-    public void write(Workbook workbook, List<?> entityList, Map<String, Object> vars, String sheetName) throws ExcelWriteException {
+    public void write(Workbook workbook, List<?> entityList, Map<String, Object> replaceMap, String sheetName) throws ExcelWriteException {
         if (entityList == null || entityList.isEmpty()) {
             return;
         }
@@ -374,9 +400,9 @@ public class ExcelWriter {
 
         // 主要属性集
         Class<?> clazz = entityList.get(0).getClass();
-        List<Field> columnFieldList = columnFieldList(clazz);
+        List<Field> columnFieldList = POPUtils.columnFieldList(clazz);
         int cellSize = columnFieldList.size();
-        ExcelCommand excelCommand = new ExcelCommand(workbook, cellSize, vars, excelStyle, entityList, defaultRowHeight, defaultColumnWidth, sheetName);
+        ExcelCommand excelCommand = new ExcelCommand(workbook, cellSize, replaceMap, excelStyle, entityList, defaultRowHeight, defaultColumnWidth, sheetName);
 
         sheetCycle:
         while (true) {
@@ -384,8 +410,8 @@ public class ExcelWriter {
 
             Annotation[] clazzAnnotations = ReflexUtils.getDeclaredAnnotations(clazz);
             for (Annotation clazzAnnotation : clazzAnnotations) {
-                // 方法内createRow
-                ProcessorFactory.headerProcessor(clazzAnnotation, excelCommand, clazz);
+                excelCommand.createRow();
+                ProcessorFactory.headerRender(clazzAnnotation, excelCommand, clazz);
             }
 
             // 数据标题
@@ -395,10 +421,10 @@ public class ExcelWriter {
                 excelCommand.createCell(ExcelColumnProcessors.DATA_TITLE_CELL_STYLE_NAME);
 
                 for (Annotation clazzAnnotation : clazzAnnotations) {
-                    ProcessorFactory.dataTitleProcessor(clazzAnnotation, excelCommand, field);
+                    ProcessorFactory.dataTitleRender(clazzAnnotation, excelCommand, field);
                 }
                 for (Annotation fieldAnnotation : fieldAnnotations) {
-                    ProcessorFactory.dataTitleProcessor(fieldAnnotation, excelCommand, field);
+                    ProcessorFactory.dataTitleRender(fieldAnnotation, excelCommand, field);
                 }
             }
 
@@ -422,11 +448,11 @@ public class ExcelWriter {
                     }
                     excelCommand.createCell(ExcelColumnProcessors.DATA_BODY_CELL_STYLE_NAME);
                     for (Annotation clazzAnnotation : clazzAnnotations) {
-                        value = ProcessorFactory.dataBodyProcessor(clazzAnnotation, excelCommand, field, value);
+                        value = ProcessorFactory.dataBodyRender(clazzAnnotation, excelCommand, field, value);
                     }
                     Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
                     for (Annotation fieldAnnotation : fieldAnnotations) {
-                        value = ProcessorFactory.dataBodyProcessor(fieldAnnotation, excelCommand, field, value);
+                        value = ProcessorFactory.dataBodyRender(fieldAnnotation, excelCommand, field, value);
                     }
                     if (value != null) {
                         excelCommand.setCellValue(value);
@@ -436,52 +462,5 @@ public class ExcelWriter {
             excelCommand.lateRender();
             break;
         }
-    }
-
-    /**
-     * 获取有{@link ExcelColumn}注解的属性集合，
-     * 解析{@link ExcelColumn}的{@code sort}，进行排序
-     *
-     * @param clazz 类
-     * @return 获取有@PoiColumn注解的属性集合
-     */
-    private List<Field> columnFieldList(Class<?> clazz) {
-        // 静态缓存
-        List<Field> poiColumnFieldList = COLUMN_FIELD_LIST_CACHE.get(clazz);
-        if (poiColumnFieldList != null) {
-            return poiColumnFieldList;
-        }
-
-        List<Integer> sortList = new ArrayList<>(16);
-        Map<Field, Integer> sortMap = new HashMap<>(16);
-
-        while (!clazz.equals(Object.class)) {
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                if (field.isAnnotationPresent(ExcelColumn.class)) {
-                    ExcelColumn excelColumn = field.getDeclaredAnnotation(ExcelColumn.class);
-                    int sort = excelColumn.sort();
-                    if (!sortList.contains(sort)) {
-                        sortList.add(sort);
-                    }
-                    sortMap.put(field, sort);
-                }
-            }
-            clazz = clazz.getSuperclass();
-        }
-
-        Collections.sort(sortList);
-        poiColumnFieldList = new ArrayList<>();
-        for (Integer sortNum : sortList) {
-            Set<Map.Entry<Field, Integer>> entrySet = sortMap.entrySet();
-            for (Map.Entry<Field, Integer> entry : entrySet) {
-                if (entry.getValue().equals(sortNum)) {
-                    poiColumnFieldList.add(entry.getKey());
-                }
-            }
-        }
-        COLUMN_FIELD_LIST_CACHE.put(clazz, poiColumnFieldList);
-        return poiColumnFieldList;
     }
 }
