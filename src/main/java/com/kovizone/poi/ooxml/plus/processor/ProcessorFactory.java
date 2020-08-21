@@ -5,6 +5,7 @@ import com.kovizone.poi.ooxml.plus.api.processor.BaseProcessor;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteInitProcessor;
 import com.kovizone.poi.ooxml.plus.api.processor.WriteRenderProcessor;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
+import com.kovizone.poi.ooxml.plus.command.ExcelInitCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 import com.kovizone.poi.ooxml.plus.util.ReflexUtils;
@@ -26,15 +27,15 @@ public class ProcessorFactory {
     /**
      * 解析表头处理器
      *
-     * @param annotation   注解
-     * @param excelCommand 基础命令
-     * @param clazz        实体类
+     * @param annotation       注解
+     * @param excelInitCommand 初始化命令
+     * @param clazz            实体类
      * @throws ExcelWriteException 异常
      */
     @SuppressWarnings("unchecked")
-    public static void sheetInit(Annotation annotation,
-                                 ExcelCommand excelCommand,
-                                 Class<?> clazz) throws ExcelWriteException {
+    public static void init(Annotation annotation,
+                            ExcelInitCommand excelInitCommand,
+                            Class<?> clazz) throws ExcelWriteException {
 
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         WriteInitProcessor writeInitProcessor = getProcessor(annotationClass, WriteInitProcessor.class);
@@ -45,8 +46,8 @@ public class ProcessorFactory {
             } catch (ReflexException e) {
                 throw new ExcelWriteException(e);
             }
-            writeInitProcessor.sheetInit(annotationEntity,
-                    excelCommand,
+            writeInitProcessor.init(annotationEntity,
+                    excelInitCommand,
                     clazz);
         }
     }
@@ -67,6 +68,7 @@ public class ProcessorFactory {
         Class<? extends Annotation> annotationClass = annotation.annotationType();
         WriteRenderProcessor writeProcessor = getProcessor(annotationClass, WriteRenderProcessor.class);
         if (writeProcessor != null) {
+            excelCommand.createRow(null);
             Annotation annotationEntity;
             try {
                 annotationEntity = ReflexUtils.getDeclaredAnnotation(clazz, annotationClass.getSimpleName());

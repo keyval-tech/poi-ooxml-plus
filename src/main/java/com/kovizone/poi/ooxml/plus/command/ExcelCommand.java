@@ -19,33 +19,6 @@ import java.util.*;
  */
 public class ExcelCommand {
 
-    public ExcelCommand(
-            Workbook workbook,
-            int cellSize,
-            Map<String, Object> headerTextReplaceMap,
-            ExcelStyle excelStyle,
-            List<?> entityList,
-            Short defaultRowHeight,
-            Integer defaultColumnWidth,
-            String sheetName) {
-        super();
-        this.workbook = workbook;
-        this.cellSize = cellSize;
-        this.headerTextReplaceMap = headerTextReplaceMap;
-        this.sheetIndex = 0;
-        this.nextCellIndex = 0;
-        this.nextRowIndex = 0;
-        this.lateRenderCellWidth = new HashMap<>(16);
-        this.lateRenderRowHeight = new HashMap<>(16);
-        this.styleMap = excelStyle.styleMap(new ExcelStyleCommand(workbook));
-        this.entityList = entityList;
-        this.elParser = new ElParser(entityList);
-        this.entityListIndex = 0;
-        this.defaultColumnWidth = defaultColumnWidth;
-        this.defaultRowHeight = defaultRowHeight;
-        this.sheetName = sheetName;
-    }
-
     /**
      * EL解析器
      */
@@ -67,42 +40,106 @@ public class ExcelCommand {
      */
     private Map<String, CellStyle> styleMap;
     /**
-     * 工作簿
-     */
-    private Sheet sheet;
-    /**
-     * 行
-     */
-    private Row row;
-    /**
-     * 单元格
-     */
-    private Cell cell;
-    /**
-     * 默认最大l列数
+     * 默认最大列数
      */
     private int cellSize;
-    /**
-     * 下一工作簿索引
-     */
-    private int sheetIndex;
-    /**
-     * 下一列索引
-     */
-    private int nextCellIndex;
-    /**
-     * 下一行索引
-     */
-    private int nextRowIndex;
     /**
      * 表头文本替换
      */
     private Map<String, Object> headerTextReplaceMap;
 
     /**
-     * Sheet标签名
+     * 默认Sheet标签名
      */
-    private String sheetName;
+    private String defaultSheetName;
+
+    /**
+     * 优先输出空行的高度集
+     */
+    private Short[] blankRowHeights;
+
+    /**
+     * 优先输出空列的宽度集
+     */
+    private Integer[] blankCellWidths;
+
+    /**
+     * 默认列宽
+     */
+    private Integer defaultColumnWidth;
+
+    /**
+     * 默认行高
+     */
+    private Short defaultRowHeight;
+    /**
+     * 当前工作簿
+     */
+    private Sheet sheet;
+    /**
+     * 当前行
+     */
+    private Row row;
+    /**
+     * 当前单元格
+     */
+    private Cell cell;
+    /**
+     * 工作簿索引，当工作表不存在工作簿时为-1
+     */
+    private int sheetIndex;
+    /**
+     * 行索引，当工作簿不存在行时为-1
+     */
+    private int rowIndex;
+    /**
+     * 列索引，当前行不存在列时为-1
+     */
+    private int cellIndex;
+    /**
+     * 当前Sheet是否已进行懒渲染
+     */
+    private boolean sheetLazyRenderFlag;
+    /**
+     * 当前Sheet需要进行懒渲染的列宽
+     */
+    private Map<Integer, Integer> lateRenderCellWidth;
+    /**
+     * 当前Sheet需要进行懒渲染的行高
+     */
+    private Map<Integer, Short> lateRenderRowHeight;
+
+    public ExcelCommand(
+            Workbook workbook,
+            ExcelStyle excelStyle,
+            int cellSize,
+            Map<String, Object> headerTextReplaceMap,
+            List<?> entityList,
+            ExcelInitCommand excelInitCommand) {
+        super();
+        this.elParser = new ElParser(entityList);
+        this.workbook = workbook;
+        this.cellSize = cellSize;
+        this.headerTextReplaceMap = headerTextReplaceMap;
+        this.entityList = entityList;
+
+        this.defaultColumnWidth = excelInitCommand.getDefaultColumnWidth();
+        this.defaultRowHeight = excelInitCommand.getDefaultRowHeight();
+        this.blankRowHeights = excelInitCommand.getBlankRowHeights();
+        this.blankCellWidths = excelInitCommand.getBlankCellWidths();
+        this.defaultSheetName = excelInitCommand.getDefaultSheetName();
+
+        this.styleMap = excelStyle.styleMap(new ExcelStyleCommand(workbook));
+
+        this.sheetLazyRenderFlag = false;
+        this.sheetIndex = -1;
+        this.cellIndex = -1;
+        this.rowIndex = -1;
+        this.lateRenderCellWidth = new HashMap<>(16);
+        this.lateRenderRowHeight = new HashMap<>(16);
+
+        this.entityListIndex = 0;
+    }
 
     /**
      * 获取当前单元格索引
@@ -110,7 +147,7 @@ public class ExcelCommand {
      * @return 当前单元格索引
      */
     public int currentCowIndex() {
-        return nextCellIndex - 1;
+        return cellIndex;
     }
 
     /**
@@ -119,7 +156,7 @@ public class ExcelCommand {
      * @return 当前行索引
      */
     public int currentRowIndex() {
-        return nextRowIndex - 1;
+        return rowIndex;
     }
 
     /**
@@ -128,22 +165,14 @@ public class ExcelCommand {
      * @return 当前工作簿索引
      */
     public int currentSheetIndex() {
-        return sheetIndex - 1;
+        return sheetIndex;
     }
 
     /**
      * 创建工作簿
      */
     public void createSheet() {
-        createSheet("Sheet#{sheetNum}");
-        if (!StringUtils.isEmpty(sheetName)) {
-            if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
-                sheetName = sheetName + ExcelWriter.SHEET_NUM;
-            }
-            workbook.setSheetName(currentSheetIndex(), sheetName.replace(
-                    ExcelWriter.SHEET_NUM,
-                    String.valueOf(currentSheetIndex() + 1)));
-        }
+        createSheet(this.defaultSheetName);
     }
 
     /**
@@ -154,96 +183,71 @@ public class ExcelCommand {
     public void createSheet(String sheetName) {
         Sheet sheet;
         if (StringUtils.isEmpty(sheetName)) {
+            sheetName = this.defaultSheetName;
+        }
+        if (!StringUtils.isEmpty(sheetName)) {
             if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
-                sheetName = sheetName + ExcelWriter.SHEET_NUM;
+                sheetName = sheetName + "_" + ExcelWriter.SHEET_NUM;
             }
-            sheet = workbook.createSheet(sheetName.replace(
-                    ExcelWriter.SHEET_NUM,
-                    String.valueOf((sheetIndex) + 1)));
+            sheet = workbook.createSheet(
+                    sheetName.replace(ExcelWriter.SHEET_NUM, String.valueOf((++sheetIndex) + 1)));
         } else {
-            sheet = workbook.createSheet();
+            sheet = workbook.createSheet("Sheet" + ((++sheetIndex) + 1));
         }
         this.sheet = sheet;
 
         // 重置列索引
-        this.nextRowIndex = 0;
+        this.rowIndex = -1;
         // 重置行索引
-        this.nextCellIndex = 0;
-        if (sheetIndex > 1) {
+        this.cellIndex = -1;
+        if (sheetIndex > 0) {
             // 渲染之前的工作簿
-            lateRender();
+            lazyRender();
         }
-        lateRenderFlag = false;
-        sheetIndex++;
-        setDefaultRowHeight(null);
-    }
+        sheetLazyRenderFlag = false;
 
-    public void setSheetName(String sheetName) {
-        this.sheetName = sheetName;
-        if (!StringUtils.isEmpty(sheetName) && currentSheetIndex() >= 0) {
-            if (!sheetName.contains(ExcelWriter.SHEET_NUM)) {
-                sheetName = sheetName + ExcelWriter.SHEET_NUM;
+        if (blankRowHeights != null) {
+            for (Short blankRowHeight : blankRowHeights) {
+                createRow(null);
+                if (blankRowHeight > 0) {
+                    setRowHeight(blankRowHeight);
+                }
             }
-            workbook.setSheetName(currentSheetIndex(), sheetName.replace(
-                    ExcelWriter.SHEET_NUM,
-                    String.valueOf(currentSheetIndex() + 1)));
         }
-    }
-
-    /**
-     * 获取Sheet
-     *
-     * @return sheet
-     */
-    protected Sheet getSheet() {
-        return sheet;
     }
 
     /**
      * 创建行
-     *
-     * @return 行
      */
-    public Row createRow() {
-        Row row = sheet.createRow(nextRowIndex++);
-        this.row = row;
-        // 重置行索引
-        this.nextCellIndex = 0;
-        if (defaultRowHeight != null) {
-            setRowHeight(defaultRowHeight);
-        }
-        return row;
+    public void createRow() {
+        createRow(null);
     }
 
     /**
-     * 创建行，
-     * 注入样式
+     * 创建行，注入样式
      *
      * @param styleName 样式名
-     * @return 行
      */
-    public Row createRow(String styleName) {
-        Row row = createRow();
+    public void createRow(String styleName) {
+        row = sheet.createRow(++rowIndex);
+        // 重置行索引
+        this.cellIndex = -1;
+        if (defaultRowHeight != null && defaultRowHeight > 0) {
+            setRowHeight(defaultRowHeight);
+        }
+
+        if (blankCellWidths != null) {
+            for (Integer blankCellWidth : blankCellWidths) {
+                createCell(null);
+                if (blankCellWidth > 0) {
+                    setCellWidth(blankCellWidth);
+                }
+            }
+        }
         CellStyle cellStyle = styleMap.get(styleName);
         if (cellStyle != null) {
             row.setRowStyle(cellStyle);
         }
-        return row;
-    }
-
-    public Row getRow() {
-        return this.row;
-    }
-
-    /**
-     * 创建单元格
-     *
-     * @return 单元格
-     */
-    public Cell createCell() {
-        Cell cell = row.createCell(nextCellIndex++);
-        this.cell = cell;
-        return cell;
     }
 
     /**
@@ -251,54 +255,23 @@ public class ExcelCommand {
      * 注入样式
      *
      * @param styleName 样式名
-     * @return 单元格
      */
-    public Cell createCell(String styleName) {
-        Cell cell = createCell();
+    public void createCell(String styleName) {
+        this.cell = row.createCell(++cellIndex);
+        if (defaultColumnWidth != null && defaultColumnWidth > 0) {
+            setCellWidth(defaultColumnWidth);
+        }
         CellStyle cellStyle = styleMap.get(styleName);
         if (cellStyle != null) {
             cell.setCellStyle(cellStyle);
         }
-        return cell;
-    }
-
-    public Cell getCell() {
-        return this.cell;
-    }
-
-    private Integer defaultColumnWidth = null;
-
-    private Short defaultRowHeight = null;
-
-    /**
-     * 设置列默认列宽，
-     * 创建行后默认宽度会清除，
-     *
-     * @param width 宽度
-     */
-    public void setDefaultColumnWidth(Integer width) {
-        defaultColumnWidth = width;
     }
 
     /**
-     * 设置列默认行高，
-     * 创建工作簿后默认高度会清除，
-     *
-     * @param height 高度
+     * 懒渲染
      */
-    public void setDefaultRowHeight(Short height) {
-        defaultRowHeight = height;
-    }
-
-    private boolean lateRenderFlag;
-    private Map<Integer, Integer> lateRenderCellWidth;
-    private Map<Integer, Short> lateRenderRowHeight;
-
-    /**
-     * 即时渲染列宽行高
-     */
-    public void lateRender() {
-        if (!lateRenderFlag) {
+    public void lazyRender() {
+        if (!sheetLazyRenderFlag) {
             lateRenderCellWidth.forEach((key, value) -> {
                 if (value > 0) {
                     sheet.setColumnWidth(key, value);
@@ -307,12 +280,11 @@ public class ExcelCommand {
             lateRenderCellWidth = new HashMap<>(16);
 
             lateRenderRowHeight.forEach((key, value) -> {
-                System.out.println("set height: " + value);
                 sheet.getRow(key).setHeight(value);
             });
             lateRenderRowHeight = new HashMap<>(16);
 
-            lateRenderFlag = true;
+            sheetLazyRenderFlag = true;
         }
     }
 
@@ -323,7 +295,7 @@ public class ExcelCommand {
      */
     public void setRowHeight(short height) {
         int index = currentRowIndex();
-        if (height == -1) {
+        if (height == -1 && defaultRowHeight != null && defaultRowHeight > 0) {
             height = defaultRowHeight;
         }
         if (height > 0 && lateRenderRowHeight.get(index) == null) {
@@ -339,14 +311,13 @@ public class ExcelCommand {
      */
     public void setCellWidth(int width) {
         int index = currentCowIndex();
-        if (width == -1) {
+        if (width == -1 && defaultColumnWidth != null && defaultColumnWidth > 0) {
             width = defaultColumnWidth;
         }
         if (width > 0 && lateRenderCellWidth.get(index) == null) {
             lateRenderCellWidth.put(index, width);
         }
     }
-
 
     /**
      * 合并若干行，
@@ -463,7 +434,13 @@ public class ExcelCommand {
      */
     public void range(CellRangeAddress cellRangeAddress, BorderStyle topBorderStyle, BorderStyle rightBorderStyle, BorderStyle bottomBorderStyle, BorderStyle leftBorderStyle) {
         if (cellRangeAddress == null) {
-            cellRangeAddress = new CellRangeAddress(currentRowIndex(), currentRowIndex(), 0, cellSize - 1);
+            int blankRowSize = (blankRowHeights == null ? 0 : blankRowHeights.length);
+
+            cellRangeAddress = new CellRangeAddress(
+                    currentRowIndex(),
+                    currentRowIndex(),
+                    blankRowSize,
+                    cellSize - 1 + blankRowSize);
         }
         sheet.addMergedRegionUnsafe(cellRangeAddress);
         if (topBorderStyle != null) {
@@ -576,13 +553,11 @@ public class ExcelCommand {
         return entityListIndex;
     }
 
-    public int nextEntityListIndex() {
+    public void nextEntityListIndex() {
         if (entityListIndex == null) {
             entityListIndex = 0;
         } else {
             entityListIndex++;
         }
-        return entityListIndex;
     }
-
 }

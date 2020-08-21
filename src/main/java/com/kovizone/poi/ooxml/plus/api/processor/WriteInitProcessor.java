@@ -1,6 +1,6 @@
 package com.kovizone.poi.ooxml.plus.api.processor;
 
-import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
+import com.kovizone.poi.ooxml.plus.command.ExcelInitCommand;
 
 import java.lang.annotation.Annotation;
 
@@ -14,12 +14,12 @@ public interface WriteInitProcessor<A extends Annotation> extends BaseProcessor<
     /**
      * Sheet初始化渲染
      *
-     * @param annotation   注解类实体
-     * @param excelCommand 基础命令
-     * @param clazz        实体类
+     * @param annotation       注解类实体
+     * @param excelInitCommand 初始化命令
+     * @param clazz            实体类
      */
-    default void sheetInit(A annotation,
-                           ExcelCommand excelCommand,
-                           Class<?> clazz) {
+    default void init(A annotation,
+                      ExcelInitCommand excelInitCommand,
+                      Class<?> clazz) {
     }
 }

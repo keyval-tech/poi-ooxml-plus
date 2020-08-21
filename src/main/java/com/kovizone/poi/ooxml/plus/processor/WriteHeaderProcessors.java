@@ -30,7 +30,7 @@ public class WriteHeaderProcessors implements WriteRenderProcessor<WriteHeader> 
 
             short headerTitleHeight = writeHeader.height();
             if (headerTitleHeight != 0) {
-                excelCommand.getRow().setHeight(headerTitleHeight);
+                excelCommand.setRowHeight(headerTitleHeight);
             }
         }
     }

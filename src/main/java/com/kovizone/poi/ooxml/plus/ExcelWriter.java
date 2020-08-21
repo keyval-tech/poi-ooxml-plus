@@ -1,7 +1,7 @@
 package com.kovizone.poi.ooxml.plus;
 
-import com.kovizone.poi.ooxml.plus.api.anno.ExcelColumn;
 import com.kovizone.poi.ooxml.plus.command.ExcelCommand;
+import com.kovizone.poi.ooxml.plus.command.ExcelInitCommand;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 import com.kovizone.poi.ooxml.plus.api.style.ExcelStyle;
@@ -44,79 +44,14 @@ public class ExcelWriter {
      * 样式管理
      */
     private ExcelStyle excelStyle;
-    /**
-     * 默认行高
-     */
-    private Short defaultRowHeight;
 
     /**
-     * 默认列宽
-     */
-    private Integer defaultColumnWidth;
-
-    /**
-     * 最大行号
-     */
-    private Integer maxRowSize;
-
-    /**
-     * 修改默认行高，创建新实例
-     *
-     * @param defaultRowHeight 默认行高
-     * @return Excel输出器
-     */
-    public ExcelWriter setDefaultRowHeight(Short defaultRowHeight) {
-        return new ExcelWriter(excelStyle, defaultRowHeight, defaultColumnWidth, maxRowSize);
-    }
-
-    /**
-     * 修改默认列宽，创建新实例
-     *
-     * @param defaultColumnWidth 默认列宽
-     * @return Excel输出器
-     */
-    public ExcelWriter setDefaultColumnWidth(Integer defaultColumnWidth) {
-        return new ExcelWriter(excelStyle, defaultRowHeight, defaultColumnWidth, maxRowSize);
-    }
-
-    /**
-     * 修改最大行号，创建新实例
-     *
-     * @param maxRowSize 最大行号
-     * @return Excel输出器
-     */
-    public ExcelWriter setMaxRowSize(Integer maxRowSize) {
-        return new ExcelWriter(excelStyle, defaultRowHeight, defaultColumnWidth, maxRowSize);
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入默认样式
+     * 实体类构造器
      */
     public ExcelWriter() {
         super();
         this.excelStyle = new ExcelStyle() {
         };
-        this.defaultRowHeight = null;
-        this.defaultColumnWidth = null;
-        this.maxRowSize = null;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
-     * @param defaultRowHeight   默认行高
-     * @param defaultColumnWidth 默认列宽
-     */
-    public ExcelWriter(Short defaultRowHeight, Integer defaultColumnWidth) {
-        super();
-        this.excelStyle = new ExcelStyle() {
-        };
-        this.defaultRowHeight = defaultRowHeight;
-        this.defaultColumnWidth = defaultColumnWidth;
-        this.maxRowSize = null;
     }
 
     /**
@@ -128,61 +63,11 @@ public class ExcelWriter {
      */
     public ExcelWriter(ExcelStyle excelStyle) {
         super();
+        if (excelStyle == null) {
+            excelStyle = new ExcelStyle() {
+            };
+        }
         this.excelStyle = excelStyle;
-        this.defaultRowHeight = null;
-        this.defaultColumnWidth = null;
-        this.maxRowSize = null;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
-     * @param excelStyle         样式
-     * @param defaultRowHeight   默认行高
-     * @param defaultColumnWidth 默认列宽
-     */
-    public ExcelWriter(ExcelStyle excelStyle, Short defaultRowHeight, Integer defaultColumnWidth) {
-        super();
-        this.excelStyle = excelStyle;
-        this.defaultRowHeight = defaultRowHeight;
-        this.defaultColumnWidth = defaultColumnWidth;
-        this.maxRowSize = null;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
-     * @param excelStyle 样式
-     * @param maxRowSize 最大行数
-     */
-    public ExcelWriter(ExcelStyle excelStyle, Integer maxRowSize) {
-        super();
-        this.excelStyle = excelStyle;
-        this.defaultRowHeight = null;
-        this.defaultColumnWidth = null;
-        this.maxRowSize = maxRowSize;
-    }
-
-    /**
-     * 实体类构造器，
-     * 注入自定义样式，
-     * 自定义样式实现{@link ExcelStyle}
-     *
-     * @param excelStyle         样式
-     * @param defaultRowHeight   默认行高
-     * @param defaultColumnWidth 默认列宽
-     * @param maxRowSize         最大行数
-     */
-    public ExcelWriter(ExcelStyle excelStyle, Short defaultRowHeight, Integer defaultColumnWidth, Integer maxRowSize) {
-        super();
-        this.excelStyle = excelStyle;
-        this.defaultRowHeight = defaultRowHeight;
-        this.defaultColumnWidth = defaultColumnWidth;
-        this.maxRowSize = maxRowSize;
     }
 
     /**
@@ -396,26 +281,37 @@ public class ExcelWriter {
             return;
         }
 
-        int rowMaxLength = maxRowSize != null ? maxRowSize : ((workbook instanceof HSSFWorkbook) ? DEFAULT_XLS_MAX_ROW_SIZE : DEFAULT_XLSX_MAX_ROW_SIZE);
-
         // 主要属性集
         Class<?> clazz = entityList.get(0).getClass();
         List<Field> columnFieldList = POPUtils.columnFieldList(clazz);
-        int cellSize = columnFieldList.size();
-        ExcelCommand excelCommand = new ExcelCommand(workbook, cellSize, replaceMap, excelStyle, entityList, defaultRowHeight, defaultColumnWidth, sheetName);
+
+        ExcelInitCommand excelInitCommand = new ExcelInitCommand();
+        Annotation[] clazzAnnotations = ReflexUtils.getDeclaredAnnotations(clazz);
+        for (Annotation clazzAnnotation : clazzAnnotations) {
+            ProcessorFactory.init(clazzAnnotation, excelInitCommand, clazz);
+        }
+
+        Integer maxRowSize = excelInitCommand.getMaxRowSize();
+        int rowMaxLength = maxRowSize != null ? maxRowSize : ((workbook instanceof HSSFWorkbook) ? DEFAULT_XLS_MAX_ROW_SIZE : DEFAULT_XLSX_MAX_ROW_SIZE);
+
+        ExcelCommand excelCommand = new ExcelCommand(
+                workbook,
+                excelStyle,
+                columnFieldList.size(),
+                replaceMap,
+                entityList,
+                excelInitCommand);
 
         sheetCycle:
         while (true) {
-            excelCommand.createSheet();
+            excelCommand.createSheet(null);
 
-            Annotation[] clazzAnnotations = ReflexUtils.getDeclaredAnnotations(clazz);
             for (Annotation clazzAnnotation : clazzAnnotations) {
-                excelCommand.createRow();
                 ProcessorFactory.headerRender(clazzAnnotation, excelCommand, clazz);
             }
 
             // 数据标题
-            excelCommand.createRow();
+            excelCommand.createRow(null);
             for (Field field : columnFieldList) {
                 Annotation[] fieldAnnotations = field.getDeclaredAnnotations();
                 excelCommand.createCell(ExcelColumnProcessors.DATA_TITLE_CELL_STYLE_NAME);
@@ -437,7 +333,7 @@ public class ExcelWriter {
                     continue sheetCycle;
                 }
 
-                excelCommand.createRow();
+                excelCommand.createRow(null);
                 for (Field field : columnFieldList) {
                     // 读取默认值
                     Object value;
@@ -459,7 +355,7 @@ public class ExcelWriter {
                     }
                 }
             }
-            excelCommand.lateRender();
+            excelCommand.lazyRender();
             break;
         }
     }

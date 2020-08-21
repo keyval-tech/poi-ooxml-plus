@@ -1,10 +1,7 @@
 package com.kovizone.poi.ooxml.plus;
 
 import com.kovizone.poi.ooxml.plus.util.POPUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -41,7 +38,32 @@ public class ExcelReader {
                     }
                     for (int c = startCellIndex; c < maxCellNum; c++) {
                         Cell cell = row.getCell(c);
-                        System.out.println(cell.getStringCellValue() + " | ");
+                        CellType cellType = cell.getCellType();
+                        switch (cellType) {
+                            case _NONE:
+                            case BLANK:
+                                System.out.print("BLANK");
+                                break;
+                            case ERROR:
+                                System.out.print("ERROR: " + cell.getErrorCellValue());
+                                break;
+                            case FORMULA:
+                                System.out.print("FORMULA: " + cell.getCellFormula());
+                                break;
+                            case BOOLEAN:
+                                System.out.print("BOOLEAN: " + cell.getBooleanCellValue());
+                                break;
+                            case NUMERIC:
+                                System.out.print("NUMERIC: " + cell.getNumericCellValue());
+                                break;
+                            case STRING:
+                                System.out.print("STRING: " + cell.getRichStringCellValue());
+                                break;
+                            default:
+                                System.out.print("DEFAULT: " + cell.getStringCellValue());
+                                break;
+                        }
+                        System.out.print(" | ");
                     }
                     System.out.println();
                 }

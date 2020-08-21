@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
+ * poi-ooxml-plus 工具
+ *
  * @author <a href="mailto:kovichen@163.com">KoviChen</a>
  * @version 1.0
  */
@@ -26,40 +28,39 @@ public class POPUtils {
     public static List<Field> columnFieldList(Class<?> clazz) {
         // 静态缓存
         List<Field> poiColumnFieldList = COLUMN_FIELD_LIST_CACHE.get(clazz);
-        if (poiColumnFieldList != null) {
-            return poiColumnFieldList;
-        }
+        if (poiColumnFieldList == null) {
+            List<Integer> sortList = new ArrayList<>(16);
+            Map<Field, Integer> sortMap = new HashMap<>(16);
 
-        List<Integer> sortList = new ArrayList<>(16);
-        Map<Field, Integer> sortMap = new HashMap<>(16);
 
-        while (!clazz.equals(Object.class)) {
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                if (field.isAnnotationPresent(ExcelColumn.class)) {
-                    ExcelColumn excelColumn = field.getDeclaredAnnotation(ExcelColumn.class);
-                    int sort = excelColumn.sort();
-                    if (!sortList.contains(sort)) {
-                        sortList.add(sort);
+            while (!clazz.equals(Object.class)) {
+                Field[] fields = clazz.getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    if (field.isAnnotationPresent(ExcelColumn.class)) {
+                        ExcelColumn excelColumn = field.getDeclaredAnnotation(ExcelColumn.class);
+                        int sort = excelColumn.sort();
+                        if (!sortList.contains(sort)) {
+                            sortList.add(sort);
+                        }
+                        sortMap.put(field, sort);
                     }
-                    sortMap.put(field, sort);
                 }
+                clazz = clazz.getSuperclass();
             }
-            clazz = clazz.getSuperclass();
-        }
 
-        Collections.sort(sortList);
-        poiColumnFieldList = new ArrayList<>();
-        for (Integer sortNum : sortList) {
-            Set<Map.Entry<Field, Integer>> entrySet = sortMap.entrySet();
-            for (Map.Entry<Field, Integer> entry : entrySet) {
-                if (entry.getValue().equals(sortNum)) {
-                    poiColumnFieldList.add(entry.getKey());
+            Collections.sort(sortList);
+            poiColumnFieldList = new ArrayList<>();
+            for (Integer sortNum : sortList) {
+                Set<Map.Entry<Field, Integer>> entrySet = sortMap.entrySet();
+                for (Map.Entry<Field, Integer> entry : entrySet) {
+                    if (entry.getValue().equals(sortNum)) {
+                        poiColumnFieldList.add(entry.getKey());
+                    }
                 }
             }
+            COLUMN_FIELD_LIST_CACHE.put(clazz, poiColumnFieldList);
         }
-        COLUMN_FIELD_LIST_CACHE.put(clazz, poiColumnFieldList);
         return poiColumnFieldList;
     }
 }

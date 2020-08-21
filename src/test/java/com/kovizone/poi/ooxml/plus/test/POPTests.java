@@ -4,31 +4,36 @@ import com.kovizone.poi.ooxml.plus.ExcelReader;
 import com.kovizone.poi.ooxml.plus.ExcelWriter;
 import com.kovizone.poi.ooxml.plus.anno.*;
 import com.kovizone.poi.ooxml.plus.api.anno.ExcelColumn;
+import com.kovizone.poi.ooxml.plus.api.anno.ReaderConverter;
+import com.kovizone.poi.ooxml.plus.converter.String2LocalDateCellConverter;
 import com.kovizone.poi.ooxml.plus.exception.ExcelWriteException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.WorkbookUtil;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class Test {
+public class POPTests {
 
-    public static void main(String[] args) throws IOException {
+    public static void testReader(String[] args) throws IOException {
         Workbook workbook = WorkbookFactory.create(new File("D:\\test\\20200812151345678.xls"));
-        new ExcelReader().reader(workbook, TestEntity.class, 1, 0);
+        List<TestEntity> list = new ExcelReader().reader(workbook, TestEntity.class, 1, 0);
+        if (list != null) {
+            for (TestEntity entity : list) {
+                System.out.println(entity.toString());
+            }
+        }
     }
 
-    public static void main1(String[] args) throws IOException, ExcelWriteException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    @Test
+    public void testWriter() throws IOException, ExcelWriteException {
 
-        Short defaultRowHeight = null;
-        ExcelWriter excelWriter = new ExcelWriter(defaultRowHeight, 10000);
+        ExcelWriter excelWriter = new ExcelWriter();
 
         List<TestEntity> testEntities = new ArrayList<>();
         testEntities.add(new TestEntity("我", "222222", "00", "4", 1, new Date(), null, null));
@@ -43,10 +48,11 @@ public class Test {
         }};
 
         Workbook workbook = new HSSFWorkbook();
-        excelWriter.write(workbook, testEntities, vars, "测试分页[page]");
+        excelWriter.write(workbook, testEntities, vars);
         workbook.write(new FileOutputStream(new File("C:/test/" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".xls")));
     }
 
+    @WriteInit(sheetName = "页码_[page]", columnWidth = 5000)
     @WriteHeader("这是标题，作者是#author")
     public static class TestEntity {
 
@@ -75,6 +81,7 @@ public class Test {
         @ExcelColumn(sort = 70, value = "测试7")
         String test7;
 
+        @ReaderConverter({String2LocalDateCellConverter.class})
         @ExcelColumn(sort = 80, value = "测试8")
         @WriteCriteria("#this.test8 == null ? #this.test2 : #this.test8")
         String test8;
@@ -88,6 +95,20 @@ public class Test {
             this.test6 = test6;
             this.test7 = test7;
             this.test8 = test8;
+        }
+
+        @Override
+        public String toString() {
+            return "TestEntity{" +
+                    "test='" + test + '\'' +
+                    ", test2='" + test2 + '\'' +
+                    ", test3='" + test3 + '\'' +
+                    ", test4='" + test4 + '\'' +
+                    ", test5=" + test5 +
+                    ", test6=" + test6 +
+                    ", test7='" + test7 + '\'' +
+                    ", test8='" + test8 + '\'' +
+                    '}';
         }
 
         public String getTest7() {
