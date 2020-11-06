@@ -328,7 +328,7 @@ public class ExcelWriter {
             for (; excelCommand.currentEntityListIndex() < entityList.size(); excelCommand.nextEntityListIndex()) {
                 Object entity = entityList.get(excelCommand.currentEntityListIndex());
 
-                if (excelCommand.currentRowIndex() >= rowMaxLength) {
+                if (excelCommand.getRowIndex() >= rowMaxLength) {
                     // 达到最大行数，新增工作簿
                     continue sheetCycle;
                 }
