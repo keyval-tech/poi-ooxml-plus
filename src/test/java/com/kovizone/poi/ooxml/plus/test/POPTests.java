@@ -20,6 +20,10 @@ import java.util.*;
 
 public class POPTests {
 
+    public static void main(String[] args) {
+
+    }
+
     public static void testReader(String[] args) throws IOException {
         Workbook workbook = WorkbookFactory.create(new File("D:\\test\\20200812151345678.xls"));
         List<TestEntity> list = new ExcelReader().reader(workbook, TestEntity.class, 1, 0);
