@@ -4,10 +4,7 @@ package com.kovizone.poi.ooxml.plus.util;
 import com.kovizone.poi.ooxml.plus.exception.ReflexException;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,42 +116,75 @@ public class ReflexUtils {
     }
 
     public static Object getValue(Object object, String fieldName) throws ReflexException {
-        return getValue(object, ReflexUtils.getDeclaredField(object.getClass(), fieldName));
+        return getValue(object, getDeclaredField(object.getClass(), fieldName));
     }
 
     public static Object getValue(Object object, Field field) throws ReflexException {
         Class<?> clazz = object.getClass();
-        try {
-            Method getMethod = clazz.getDeclaredMethod("get".concat(StringUtils.upperFirstCase(field.getName())));
-            return getMethod.invoke(object);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            field.setAccessible(true);
+
+        if (Modifier.isPublic(field.getModifiers())) {
             try {
                 return field.get(object);
-            } catch (IllegalAccessException ex) {
-                e.printStackTrace();
-                throw new ReflexException("读取属性值失败：" + field.toString());
+            } catch (IllegalAccessException ignored) {
             }
+        }
+
+        if (Modifier.isStatic(field.getModifiers())) {
+            return accessibleGetValue(object, field);
+        }
+
+        try {
+            Method getMethod = clazz.getMethod("get".concat(StringUtils.upperFirstCase(field.getName())));
+            return getMethod.invoke(object);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            return accessibleGetValue(object, field);
+        }
+
+    }
+
+    private static Object accessibleGetValue(Object object, Field field) throws ReflexException {
+        field.setAccessible(true);
+        try {
+            return field.get(object);
+        } catch (IllegalAccessException ex) {
+            throw new ReflexException("读取属性值失败：" + field.toString());
         }
     }
 
     public static void setValue(Object object, String fieldName, Object value) throws ReflexException {
-        setValue(object, ReflexUtils.getDeclaredField(object.getClass(), fieldName), value);
+        setValue(object, getDeclaredField(object.getClass(), fieldName), value);
     }
 
     public static void setValue(Object object, Field field, Object value) throws ReflexException {
         Class<?> clazz = object.getClass();
-        try {
-            Method setMethod = clazz.getDeclaredMethod("set".concat(StringUtils.upperFirstCase(field.getName())), field.getType());
-            setMethod.invoke(object, value);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            field.setAccessible(true);
+        if (Modifier.isFinal(field.getModifiers())) {
+            return;
+        }
+        if (Modifier.isPublic(field.getModifiers())) {
             try {
                 field.set(object, value);
-            } catch (IllegalAccessException ex) {
-                e.printStackTrace();
-                throw new ReflexException("设置值失败：" + field.toString());
+                return;
+            } catch (IllegalAccessException ignored) {
             }
+        }
+        if (Modifier.isStatic(field.getModifiers())) {
+            accessibleSetValue(object, field, value);
+            return;
+        }
+        try {
+            Method setMethod = clazz.getMethod("set".concat(StringUtils.upperFirstCase(field.getName())), field.getType());
+            setMethod.invoke(object, value);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            accessibleSetValue(object, field, value);
+        }
+    }
+
+    private static void accessibleSetValue(Object object, Field field, Object value) throws ReflexException {
+        field.setAccessible(true);
+        try {
+            field.set(object, value);
+        } catch (IllegalAccessException ex) {
+            throw new ReflexException("设置值失败：" + field.toString());
         }
     }
 
