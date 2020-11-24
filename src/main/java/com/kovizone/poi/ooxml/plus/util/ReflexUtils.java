@@ -19,12 +19,14 @@ public class ReflexUtils {
     /**
      * 属性数组缓存
      */
-    private static final Map<Class<?>, Field[]> FIELD_ARRAY_CACHE = new HashMap<>();
+    // TODO 待优化，改成LRU或LFU算法
+    private static final Map<Class<?>, Field[]> FIELD_ARRAY_CACHE = new HashMap<>(16);
 
     /**
-     * 主机而数组
+     * 注解数组
      */
-    private static final Map<Class<?>, Annotation[]> ANNOTATION_ARRAY_CACHE = new HashMap<>();
+    // TODO 待优化，改成LRU或LFU算法
+    private static final Map<Class<?>, Annotation[]> ANNOTATION_ARRAY_CACHE = new HashMap<>(16);
 
     /**
      * <p>获取属性</p>
@@ -122,6 +124,7 @@ public class ReflexUtils {
     public static Object getValue(Object object, Field field) throws ReflexException {
         Class<?> clazz = object.getClass();
 
+        // 公开变量直接读
         if (Modifier.isPublic(field.getModifiers())) {
             try {
                 return field.get(object);
@@ -129,14 +132,17 @@ public class ReflexUtils {
             }
         }
 
+        // 私有静态变量强制读
         if (Modifier.isStatic(field.getModifiers())) {
             return accessibleGetValue(object, field);
         }
 
+        // 私有非静态变量优先使用getter
         try {
             Method getMethod = clazz.getMethod("get".concat(StringUtils.upperFirstCase(field.getName())));
             return getMethod.invoke(object);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // 若无getter，强制读取
             return accessibleGetValue(object, field);
         }
 
@@ -157,9 +163,12 @@ public class ReflexUtils {
 
     public static void setValue(Object object, Field field, Object value) throws ReflexException {
         Class<?> clazz = object.getClass();
+        // 常量写入拦截
         if (Modifier.isFinal(field.getModifiers())) {
             return;
         }
+
+        // 公开变量直接写入
         if (Modifier.isPublic(field.getModifiers())) {
             try {
                 field.set(object, value);
@@ -167,14 +176,19 @@ public class ReflexUtils {
             } catch (IllegalAccessException ignored) {
             }
         }
+
+        // 私有静态变量强制写入
         if (Modifier.isStatic(field.getModifiers())) {
             accessibleSetValue(object, field, value);
             return;
         }
+
+        // 私有非静态变量优先使用setter
         try {
             Method setMethod = clazz.getMethod("set".concat(StringUtils.upperFirstCase(field.getName())), field.getType());
             setMethod.invoke(object, value);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // 若无setter，强制写入
             accessibleSetValue(object, field, value);
         }
     }
